@@ -1,5 +1,6 @@
 #include <iostream>
 #include <dlfcn.h>
+#include <meteo_operations/OperationBase.h>
 #include "cmake_config.out.h"
 
 int main(void)
@@ -25,6 +26,17 @@ int main(void)
   } else {
       std::cerr << "ERROR loading symbol: " << dlerror() << std::endl;
   }
+
+  /*
+   * We have a pointer to the symbol but only the programmer knows
+   * what that symbol is.
+   */
+  typedef OperationBase *plugin_maker_t();
+  plugin_maker_t *absolute_value_maker = reinterpret_cast<plugin_maker_t *>(maker);
+
+  OperationBase *absolute_value_instance_ptr = absolute_value_maker();
+
+  absolute_value_instance_ptr->algo();
 
   return 0;
 }
