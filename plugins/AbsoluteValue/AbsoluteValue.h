@@ -13,4 +13,6 @@ class AbsoluteValue : public OperationBase{
 
 };
 
+OperationBase *maker();
+
 #endif //TUTORIAL_ABSOLUTEVALUE_H
