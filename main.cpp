@@ -11,7 +11,7 @@ int main(void)
 
   absolute_value_path += std::string(PLUGIN_PATH) + "/AbsoluteValue/libAbsoluteValue.so";
 
-  void *plugin = dlopen(absolute_value_path.c_str(), RTLD_LAZY);
+  void *plugin = dlopen(absolute_value_path.c_str(), RTLD_NOW);
 
   if(plugin){
       std::cerr << "Plugin loaded successfully" << std::endl;
