@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <dlfcn.h>
 #include <meteo_operations/OperationBase.h>
