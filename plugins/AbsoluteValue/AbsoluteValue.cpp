@@ -11,7 +11,9 @@ void AbsoluteValue::algo(){
     base_method();
 }
 
-OperationBase *maker()
-{
-    return new AbsoluteValue();
+extern "C" {
+    OperationBase *maker()
+    {
+        return new AbsoluteValue();
+    }
 }
