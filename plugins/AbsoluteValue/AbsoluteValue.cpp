@@ -8,12 +8,7 @@
 
 void AbsoluteValue::algo(){
     std::cerr << __PRETTY_FUNCTION__ << " : Hello ..." << std::endl;
-    base_method();
+    OperationBase *op = new OperationBase();
+    // base_method();
 }
 
-extern "C" {
-    OperationBase *maker()
-    {
-        return new AbsoluteValue();
-    }
-}

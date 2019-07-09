@@ -7,12 +7,12 @@
 
 #include "meteo_operations/OperationBase.h"
 
-class AbsoluteValue : public OperationBase{
-
+class AbsoluteValue {
+public:
+    AbsoluteValue(){};
     virtual void algo();
 
 };
 
-extern "C" OperationBase *maker();
 
 #endif //TUTORIAL_ABSOLUTEVALUE_H
