@@ -12,6 +12,10 @@ include_directories(
 )
 
 add_executable(spooki_run.out main.cpp)
+target_link_libraries(
+    spooki_run.out
+        dl
+)
 
 add_subdirectory(meteo_operations)
 add_subdirectory(plugins)
