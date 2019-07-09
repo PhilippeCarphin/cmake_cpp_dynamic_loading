@@ -1,0 +1,2 @@
+
+#define PLUGIN_PATH "@CMAKE_PLUGIN_PATH@"
