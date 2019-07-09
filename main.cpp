@@ -18,5 +18,13 @@ int main(void)
       std::cerr << "ERROR loading plugin : " << dlerror() << std::endl;
   }
 
+  void *maker = dlsym(plugin, "maker");
+
+  if(maker){
+      std::cerr << "Symbol loaded successfully" << std::endl;
+  } else {
+      std::cerr << "ERROR loading symbol: " << dlerror() << std::endl;
+  }
+
   return 0;
 }
