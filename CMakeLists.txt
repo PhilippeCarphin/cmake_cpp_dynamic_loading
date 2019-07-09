@@ -23,5 +23,7 @@ add_dependencies(spooki_run.out AbsoluteValue)
 add_subdirectory(meteo_operations)
 add_subdirectory(plugins)
 
+add_subdirectory(pyspooki)
+
 configure_file(cmake_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.out.h)
 
