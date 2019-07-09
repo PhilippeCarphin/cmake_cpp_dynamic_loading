@@ -17,6 +17,9 @@ target_link_libraries(
         dl
 )
 
+# Or we could do this in plugins/AbsoluteValue/CMakeLists
+add_dependencies(spooki_run.out AbsoluteValue)
+
 add_subdirectory(meteo_operations)
 add_subdirectory(plugins)
 
