@@ -16,14 +16,14 @@ message("PYTHON_LIBRARIES=${PYTHON_LIBRARIES}")
 
 target_include_directories(
         pyspooki_interface
-    PUBLIC
+    PRIVATE
         ${PYTHON_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
         pyspooki_interface
-    PUBLIC
+    PRIVATE
         meteo_operations
         ${Boost_LIBRARIES}
         # Note the non-necessity of ${PYTHON_LIBRARIES} because BOOS
