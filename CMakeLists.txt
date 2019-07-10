@@ -6,17 +6,27 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_PLUGIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 
 
-# NOTE: This variable must be declared before the find_package
-# for the call to work with version 3.4.
-# The find_package doesn't use the variable as an argument
-# to make clear the fact that the the variable is there for
-# another reason.
-SET(Python_ADDITIONAL_VERSIONS 3.4)
-FIND_PACKAGE(PythonLibs 3.4 REQUIRED)
+if("$ENV{ORDENV_PLAT}" STREQUAL "ubuntu-14.04-amd64-64")
+    # NOTE: This variable must be declared before the find_package
+    # for the call to work with version 3.4.
+    # The find_package doesn't use the variable as an argument
+    # to make clear the fact that the the variable is there for
+    # another reason.
+    SET(Python_ADDITIONAL_VERSIONS 3.4)
+    SET(Python_DESIRED_VERSION 3.4)
+    SET(PYTHON_FOUND_VERSION 34)
+    FIND_PACKAGE(Boost COMPONENTS python-py34)
+else()
+    SET(Python_DESIRED_VERSION 3)
+endif()
 
-# Note the way the version is written, I'm using the least amount of
-# variables so that we see the values themselves in the calls
-FIND_PACKAGE(Boost COMPONENTS python-py34)
+FIND_PACKAGE(PythonLibs ${Python_DESIRED_VERSION} REQUIRED)
+
+string(REGEX MATCH "3.[1-9]" PYTHON_FOUND_VERSION ${PYTHONLIBS_VERSION_STRING})
+string(REPLACE "." "" PYTHON_FOUND_VERSION ${PYTHON_FOUND_VERSION})
+
+FIND_PACKAGE(Boost COMPONENTS python-py${PYTHON_FOUND_VERSION})
+
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
