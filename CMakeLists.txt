@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_PLUGIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 
 project (Tutorial)
+enable_testing()
+add_custom_target(check)
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
