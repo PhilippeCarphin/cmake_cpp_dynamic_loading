@@ -42,7 +42,7 @@ PyObject* tanh_impl(float x) {
 }
 
 using namespace boost::python;
-BOOST_PYTHON_MODULE(pyspooki_interface)
+BOOST_PYTHON_MODULE(libpyspooki_interface)
 {
     class_<pyspooki_interface_class>("pyspooki_interface_class", init<>())
             .def("method", &pyspooki_interface_class::method);
