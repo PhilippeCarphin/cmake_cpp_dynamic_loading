@@ -1,5 +1,6 @@
 
-add_library(pyspooki_interface SHARED pyspooki_interface.cpp)
+#add_library(pyspooki_inter SHARED pyspooki_interface.cpp)
+PYTHON_ADD_MODULE(pyspooki_interface pyspooki_interface.cpp)
 
 list(GET Boost_LIBRARY_DIRS 0 Boost_LD_PATH)
 configure_file(test_python.sh.in ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh)
@@ -18,6 +19,14 @@ target_link_libraries(
         ${Boost_LIBRARIES}
         # Note the non-necessity of ${PYTHON_LIBRARIES} because BOOS
 )
+
+if(${APPLE})
+  target_link_libraries(
+      pyspooki_interface
+    PRIVATE
+      ${PYTHON_LIBRARIES}
+  )
+endif()
 
 add_dependencies(
     pyspooki_interface
