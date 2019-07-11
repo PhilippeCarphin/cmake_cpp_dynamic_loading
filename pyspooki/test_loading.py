@@ -2,7 +2,7 @@ print()
 print("PYTHON   : Importing libpyspooki_interface")
 import sys
 sys.path.append("/Users/pcarphin/Documents/GitHub/cmake_cpp_dynamic_loading/cmake-build-debug/pyspooki/")
-import libpyspooki_interface as interface
+import pyspooki_interface as interface
 
 print()
 print("PYTHON   : Creating an instance of a class")
