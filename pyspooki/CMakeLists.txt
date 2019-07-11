@@ -44,6 +44,7 @@ add_custom_target(
 
 add_dependencies(python_interface_test
     pyspooki_interface
+    AbsoluteValue
 )
 
 add_dependencies(

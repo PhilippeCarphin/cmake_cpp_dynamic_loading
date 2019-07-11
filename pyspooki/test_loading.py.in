@@ -22,3 +22,7 @@ print()
 print("PYTHON   : Calling interface.tanh_impl(2.0)")
 result = interface.tanh_impl(2.0)
 print("PYTHON   : Result of tanh_impl: {}".format(result))
+
+print()
+print("PYTHON   : Calling interface.run_absolute_value_plugin")
+interface.run_absolute_value_plugin()
