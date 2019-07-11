@@ -38,7 +38,7 @@ add_custom_target(
         COMMAND
         # The key that was holding me back was this:  The boost libraries were
         # not in LD_LIBRARY_PATH
-        env -i LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:${Boost_LIBRARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh
+        env -i ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh
 )
 
 add_dependencies(python_interface_test
