@@ -6,7 +6,7 @@
 
 int main(void)
 {
-  std::cerr << __PRETTY_FUNCTION__ << " ..." << std::endl;
+  std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
 
   std::string absolute_value_path;
 
@@ -15,17 +15,17 @@ int main(void)
   void *plugin = dlopen(absolute_value_path.c_str(), RTLD_NOW);
 
   if(plugin){
-      std::cerr << "Plugin loaded successfully" << std::endl;
+      std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : Plugin loaded successfully" << std::endl;
   } else {
-      std::cerr << "ERROR loading plugin : " << dlerror() << std::endl;
+      std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : ERROR loading plugin : " << dlerror() << std::endl;
   }
 
   void *maker = dlsym(plugin, "maker");
 
   if(maker){
-      std::cerr << "Symbol loaded successfully" << std::endl;
+      std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : Symbol loaded successfully" << std::endl;
   } else {
-      std::cerr << "ERROR loading symbol: " << dlerror() << std::endl;
+      std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : ERROR loading symbol: " << dlerror() << std::endl;
   }
 
   /*

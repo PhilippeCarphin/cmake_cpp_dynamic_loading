@@ -7,7 +7,7 @@
 #include "AbsoluteValue.h"
 
 void AbsoluteValue::algo(){
-    std::cerr << __PRETTY_FUNCTION__ << " : Hello ..." << std::endl;
+    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : Hello ..." << std::endl;
     base_method();
 }
 
