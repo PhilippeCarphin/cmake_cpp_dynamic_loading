@@ -1,10 +1,9 @@
 print()
 print("PYTHON   : Importing libpyspooki_interface")
 import sys
+
 if(sys.platform == "darwin"):
-    sys.path.append("/Users/pcarphin/Documents/GitHub/cmake_cpp_dynamic_loading/cmake-build-debug/pyspooki/")
-else:
-    print(f"sys.platform = {sys.platform}")
+    sys.path.append("@CMAKE_CURRENT_BIN_DIR@")
 import pyspooki_interface as interface
 
 print()
