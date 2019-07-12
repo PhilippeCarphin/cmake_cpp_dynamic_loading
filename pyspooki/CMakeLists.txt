@@ -1,5 +1,3 @@
-
-# add_library(pyspooki_interface SHARED pyspooki_interface.cpp)
 PYTHON_ADD_MODULE(pyspooki_interface pyspooki_interface.cpp)
 
 list(GET Boost_LIBRARY_DIRS 0 Boost_LD_PATH)
@@ -47,7 +45,3 @@ add_dependencies(python_interface_test
     AbsoluteValue
 )
 
-add_dependencies(
-    check
-    python_interface_test
-)

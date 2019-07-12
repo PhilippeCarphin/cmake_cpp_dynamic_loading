@@ -27,6 +27,7 @@ void internal_initializations(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
     std::cerr << "C++      : [info] This interface was compiled for loading by Python " << BOOST_PYTHON_VERSION << std::endl;
     std::cerr << "C++      : [info] This test is development on SPOOKI" << std::endl;
+    std::cerr << "C++      : [info] This was compiled with PLUGIN_PATH=" << PLUGIN_PATH << std::endl;
 }
 
 void run_absolute_value_plugin(){

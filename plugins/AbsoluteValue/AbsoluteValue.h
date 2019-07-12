@@ -5,7 +5,7 @@
 #ifndef TUTORIAL_ABSOLUTEVALUE_H
 #define TUTORIAL_ABSOLUTEVALUE_H
 
-#include "meteo_operations/OperationBase.h"
+#include "OperationBase.h"
 
 class AbsoluteValue : public OperationBase{
 
