@@ -14,10 +14,13 @@ target_include_directories(
 target_link_libraries(
         pyspooki_interface
     PRIVATE
+        spooki_logging
         meteo_operations
         ${Boost_LIBRARIES}
         # Note the non-necessity of ${PYTHON_LIBRARIES} because BOOS
 )
+
+target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
 
 if(${APPLE})
   target_link_libraries(

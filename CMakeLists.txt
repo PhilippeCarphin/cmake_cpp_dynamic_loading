@@ -45,6 +45,8 @@ endif()
 find_package(
         Boost
     COMPONENTS
+        log
+        log_setup
         ${BOOST_PYTHON_LIBRARY_NAME}
     REQUIRED
 )
@@ -82,7 +84,8 @@ add_dependencies(spooki_run.out AbsoluteValue)
 
 add_subdirectory(meteo_operations)
 add_subdirectory(plugins)
-add_subdirectory(pyspooki)
+add_subdirectory(pyspooki_interface)
+add_subdirectory(spooki_logging)
 
 ################################## TARGET CHECK ##############################################
 

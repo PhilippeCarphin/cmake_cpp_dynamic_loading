@@ -10,6 +10,7 @@
 
 #include <dlfcn.h>
 #include <meteo_operations/OperationBase.h>
+#include "spooki_logging/spooki_logging.hpp"
 
 pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
@@ -28,6 +29,7 @@ void internal_initializations(){
     std::cerr << "C++      : [info] This interface was compiled for loading by Python " << BOOST_PYTHON_VERSION << std::endl;
     std::cerr << "C++      : [info] This test is development on SPOOKI" << std::endl;
     std::cerr << "C++      : [info] This was compiled with PLUGIN_PATH=" << PLUGIN_PATH << std::endl;
+    std::cerr << "C++      : "; BOOST_LOG_INFO << "Testing boost log info";
 }
 
 void run_absolute_value_plugin(){
