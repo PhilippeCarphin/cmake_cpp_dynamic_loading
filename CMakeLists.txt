@@ -12,16 +12,12 @@ endif()
 
 if(SPECIAL_CASE_PYTHON_34)
     SET(Python_ADDITIONAL_VERSIONS 3.4)
-    SET(Python_DESIRED_VERSION 3.4)
-    SET(PYTHON_FOUND_VERSION 34)
-else()
-    SET(Python_DESIRED_VERSION 3)
 endif()
 
 
 FIND_PACKAGE(
     PythonLibs
-        ${Python_DESIRED_VERSION}
+        3
     REQUIRED
 )
 
