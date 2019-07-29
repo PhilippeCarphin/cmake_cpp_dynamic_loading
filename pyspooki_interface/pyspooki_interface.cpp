@@ -10,7 +10,7 @@
 
 #include <dlfcn.h>
 #include <meteo_operations/OperationBase.h>
-#include "spooki_logging/spooki_logging.hpp"
+// #include "spooki_logging/spooki_logging.hpp"
 
 
 #ifdef __GNUC__
@@ -42,7 +42,7 @@ void internal_initializations(){
     std::cerr << "C++      : [info] This interface was compiled for loading by Python " << BOOST_PYTHON_VERSION << std::endl;
     std::cerr << "C++      : [info] This test is development on SPOOKI" << std::endl;
     std::cerr << "C++      : [info] This was compiled with PLUGIN_PATH=" << PLUGIN_PATH << std::endl;
-    std::cerr << "C++      : "; BOOST_LOG_INFO << "Testing boost log info";
+    // std::cerr << "C++      : "; BOOST_LOG_INFO << "Testing boost log info";
 }
 
 void run_absolute_value_plugin(){
@@ -98,14 +98,36 @@ PyObject* tanh_impl(float x) {
     return PyFloat_FromDouble(tanh_x);
 }
 
+class TestObject {
+public:
+    TestObject(std::string name):name(name){std::cout << "C++      : " <<  __PRETTY_FUNCTION__ << "[" << name << "]" << std::endl;}
+    void method(){std::cout << "C++      : " << __PRETTY_FUNCTION__ << "[" << name << "]" << std::endl;}
+    ~TestObject(){std::cout << "C++      : " << __PRETTY_FUNCTION__ << "[" << name << "]" << std::endl;}
+    std::string name;
+};
+
+std::shared_ptr<TestObject> returning_shared_ptr_test(std::string name){
+std::cout << "C++      : " << __PRETTY_FUNCTION__ << "[" << name << "]" << std::endl;
+    return std::shared_ptr<TestObject>(new TestObject(name));
+}
+
+std::shared_ptr<TestObject> copy(std::shared_ptr<TestObject> the_ptr){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << the_ptr << std::endl;
+    return the_ptr;
+}
+
 using namespace boost::python;
 BOOST_PYTHON_MODULE(pyspooki_interface)
 {
+    class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("ref_count", &std::shared_ptr<TestObject>::use_count);
+    class_<TestObject>("TestObject", init<std::string>()).def("method", &TestObject::method);
     class_<pyspooki_interface_class>("pyspooki_interface_class", init<>())
             .def("method", &pyspooki_interface_class::method);
+    def("copy", copy);
     def("pyspooki_interface_function", pyspooki_interface_function);
     def("tanh_impl", tanh_impl);
     def("run_absolute_value_plugin", run_absolute_value_plugin);
+    def("returning_shared_ptr_test", returning_shared_ptr_test);
     internal_initializations();
 }
 

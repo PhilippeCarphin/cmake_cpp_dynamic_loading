@@ -4,4 +4,4 @@ lib_path=@CMAKE_CURRENT_BINARY_DIR@
 script_path=@CMAKE_CURRENT_BINARY_DIR@
 BOOST_LD_PATH=@Boost_LD_PATH@
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BOOST_LD_PATH PYTHONPATH=$lib_path python3 $script_path/test_loading.out.py
+LD_LIBRARY_PATH=$BOOST_LD_PATH:$LD_LIBRARY_PATH PYTHONPATH=$lib_path python3 $script_path/test_loading.out.py
