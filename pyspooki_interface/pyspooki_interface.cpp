@@ -13,18 +13,6 @@
 // #include "spooki_logging/spooki_logging.hpp"
 
 
-#ifdef __GNUC__
-/*
- * This stops a warning that results from the reinterpret_cast below
- *
- * ... warning: ISO C++ forbids casting between pointer-to-function and pointer-to-object [-Wpedantic]
- *      return reinterpret_cast<plugin_maker_t*>( dlsym(__handle, __name) );
- *
- * clang doesn't produce this warning even though I give it the -Wpedantic flag
- */
-#pragma GCC system_header
-#endif
-
 pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
 }

@@ -5,6 +5,18 @@
 #ifndef TUTORIAL_PYSPOOKI_INTERFACE_H
 #define TUTORIAL_PYSPOOKI_INTERFACE_H
 
+// #ifdef __GNUC__
+// /*
+//  * This stops a warning that results from the reinterpret_cast below
+//  *
+//  * ... warning: ISO C++ forbids casting between pointer-to-function and pointer-to-object [-Wpedantic]
+//  *      return reinterpret_cast<plugin_maker_t*>( dlsym(__handle, __name) );
+//  *
+//  * clang doesn't produce this warning even though I give it the -Wpedantic flag
+//  */
+// #pragma GCC system_header
+// #endif
+
 
 class pyspooki_interface_class
 {
