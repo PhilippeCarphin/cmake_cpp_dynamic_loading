@@ -1,16 +1,26 @@
 cmake_minimum_required (VERSION 2.8)
 project (Tutorial CXX)
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 ################################# Finding python ############################################
 
 if("$ENV{ORDENV_PLAT}" STREQUAL "ubuntu-14.04-amd64-64")
-    set(SPECIAL_CASE_PYTHON_34 TRUE)
+    set(ON_UBUNTU_14_PPP TRUE)
 endif()
 
-if(SPECIAL_CASE_PYTHON_34)
+if(ON_UBUNTU_14_PPP)
+    # if("$ENV{INTELCOMP_HOME}" STREQUAL "")
+        # MESSAGE(FATAL_ERROR "ON UBUNTU 14, On PPP1, finding PythonLibs requires intelcomp environment")
+    # endif()
+    MESSAGE(STATUS "ON UBUNTU 14, setting Python_ADDITIONAL_VERSIONS to 3.4")
+    if("$ENV{CXX}" STREQUAL "/usr/bin/g++" OR "$ENV{CXX}" STREQUAL "/usr/bin/g++-4.8")
+       MESSAGE(STATUS "Environment variable CXX has an acceptable value for PPP1/2")
+    else()
+       MESSAGE(STATUS "POSSIBLE ERROR: On PPP1/2, environment variable CXX must be /usr/bin/g++ or /usr/bin/g++-4.8")
+    endif()
     SET(Python_ADDITIONAL_VERSIONS 3.4)
 endif()
 
@@ -18,11 +28,17 @@ endif()
 FIND_PACKAGE(
     PythonLibs
         3
-    REQUIRED
 )
 
 if(PYTHONLIBS_FOUND)
-    message(STATUS "Found PythonLibs version ${PYTHONLIBS_VERSION_STRING}")
+    message(STATUS "Found PythonLibs version ${PYTHONLIBS_VERSION_STRING} at path ${PYTHON_LIBRARIES}")
+ else()
+   if("$ENV{ORDENV_PLAT}" STREQUAL "")
+      message(STATUS "POSSIBLE ERROR: Environment variable ORDENV_PLAT is not defined, it is
+      necessary to finding PythonLibs if we are on PPP1/2")
+   endif()
+    message(FATAL_ERROR "PythonLibs not found If on PPP1, note that ordenv must be loaded and CXX environment variable
+    must be either /usr/bin/g++ or /usr/bin/g++-4.8")
 endif()
 
 ################################# Finding the right version of boost-python #################
@@ -56,7 +72,7 @@ include_directories(
 ################################## TARGET spooki_run.out ####################################
 
 add_executable(spooki_run.out main.cpp)
-target_link_libraries(spooki_run.out dl)
+target_link_libraries(spooki_run.out PRIVATE dl)
 
 # NOTE:
 #     simply linking to the boost-python library without also linking to the

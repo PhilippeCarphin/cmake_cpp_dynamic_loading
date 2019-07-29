@@ -22,13 +22,19 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <boost/version.hpp>
+
 /*
  * BOOST LOG Includes
  * Version thing: empty_deleter.hpp is for building with older versions of boost
  * and should be replaced with the null_deleter object from null_deleter.hpp.
  */
-//#include <boost/log/utility/empty_deleter.hpp>
+#if BOOST_VERSION == 105400
+#include <boost/log/utility/empty_deleter.hpp>
+#else
 #include <boost/core/null_deleter.hpp>
+#endif
+
 #include <boost/log/sinks.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/attributes.hpp>
@@ -136,7 +142,11 @@ void spooki_logging::setup_log_sinks(std::string filename){
     _textSink.reset(new text_sink);
     {
         text_sink::locked_backend_ptr pBackend = _textSink->locked_backend();
+#if BOOST_VERSION == 105400
+        boost::shared_ptr< std::ostream > pStream(&std::clog, boost::log::v2_mt_posix::empty_deleter());
+#else
         boost::shared_ptr< std::ostream > pStream(&std::clog, boost::null_deleter());
+#endif
         pBackend->add_stream(pStream);
         boost::shared_ptr< std::ofstream > pStream2(new std::ofstream(filename));
         assert(pStream2->is_open());
