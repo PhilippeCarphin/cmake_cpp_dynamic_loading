@@ -21,7 +21,9 @@ if(ON_UBUNTU_14_PPP)
     else()
        MESSAGE(STATUS "POSSIBLE ERROR: On PPP1/2, environment variable CXX must be /usr/bin/g++ or /usr/bin/g++-4.8")
     endif()
-    SET(Python_ADDITIONAL_VERSIONS 3.4)
+    if (${CMAKE_MAJOR_VERSION} LESS 3)
+      SET(Python_ADDITIONAL_VERSIONS 3.4)
+    endif()
 endif()
 
 

@@ -64,8 +64,11 @@ void run_absolute_value_plugin(){
      * what that symbol is.
      */
     typedef OperationBase *plugin_maker_t();
+#ifdef __GNUC__
     plugin_maker_t *absolute_value_maker = dlsymAs<plugin_maker_t *>(maker);
-    //plugin_maker_t *absolute_value_maker = reinterpret_cast<plugin_maker_t *>(maker);
+#else
+    plugin_maker_t *absolute_value_maker = reinterpret_cast<plugin_maker_t *>(maker);
+#endif
 
     OperationBase *absolute_value_instance_ptr = absolute_value_maker();
 
