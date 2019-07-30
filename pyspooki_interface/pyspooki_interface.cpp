@@ -12,7 +12,9 @@
 #include <meteo_operations/OperationBase.h>
 // #include "spooki_logging/spooki_logging.hpp"
 
+#ifdef USE_BOOST_NUMPY
 #include <boost/python/numpy.hpp>
+#endif
 
 pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
@@ -106,6 +108,7 @@ std::shared_ptr<TestObject> copy(std::shared_ptr<TestObject> the_ptr){
     return the_ptr;
 }
 
+#ifdef USE_BOOST_NUMPY
 std::string bnp_array_to_string(boost::python::numpy::ndarray const &a){
     return std::string(boost::python::extract<char const*>(boost::python::str(a)));
 }
@@ -145,12 +148,20 @@ void massage_numpy_array(boost::python::numpy::ndarray const &a){
     }
     std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
 }
+#else
+void massage_numpy_array(PyObject *a){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+}
+#endif
+
 
 using namespace boost::python;
 BOOST_PYTHON_MODULE(pyspooki_interface)
 {
     // Py_Initialize();
+#ifdef USE_BOOST_NUMPY
     boost::python::numpy::initialize();
+#endif
     class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("ref_count", &std::shared_ptr<TestObject>::use_count);
     class_<TestObject>("TestObject", init<std::string>()).def("method", &TestObject::method);
     class_<pyspooki_interface_class>("pyspooki_interface_class", init<>())
