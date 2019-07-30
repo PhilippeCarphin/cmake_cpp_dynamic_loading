@@ -60,6 +60,7 @@ find_package(
         log
         log_setup
         ${BOOST_PYTHON_LIBRARY_NAME}
+        numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX}
     REQUIRED
 )
 
