@@ -162,7 +162,7 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
 #ifdef USE_BOOST_NUMPY
     boost::python::numpy::initialize();
 #endif
-    class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("ref_count", &std::shared_ptr<TestObject>::use_count);
+    class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count);
     class_<TestObject>("TestObject", init<std::string>()).def("method", &TestObject::method);
     class_<pyspooki_interface_class>("pyspooki_interface_class", init<>())
             .def("method", &pyspooki_interface_class::method);

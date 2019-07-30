@@ -22,6 +22,9 @@ target_link_libraries(
         ${Boost_LIBRARIES}
         ${PYTHON_LIBRARIES}
 )
+if(NOT ON_UBUNTU_14_PPP)
+   target_compile_definitions(pyspooki_interface PUBLIC "USE_BOOST_NUMPY")
+endif()
 target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
 
 if(${APPLE})
