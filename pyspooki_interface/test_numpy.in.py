@@ -1,6 +1,7 @@
 import pyspooki_interface as interface
 import numpy as np
-
+def pyprint(message):
+    print("PYTHON   : " + message)
 def send_numpy_array():
     my_array = np.zeros((1, 2, 3), dtype='uint64')
     print(my_array)
@@ -8,6 +9,6 @@ def send_numpy_array():
     interface.massage_numpy_array(my_array)
     print("PYTHON   : my_array.shape = {}".format(my_array.shape))
     return my_array
-
+pyprint("Calling send_numpy_array()")
 arr = send_numpy_array()
-print(arr)
+pyprint("Back from calling send_numpy_array()")

@@ -127,7 +127,14 @@ void massage_numpy_array(boost::python::numpy::ndarray const &a){
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
     std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
     std::cout << "C++      : " << " SHAPE IS : (" << a.shape(0) << ", " << a.shape(1) << ", " << a.shape(2) << ")" << std::endl;
+#ifndef __APPLE__
+    // On My imac, this raises an exception that is caught as
+    // an IndexError in python.  There are only three dimensions
+    // to this array.
     std::cout << "C++      : " << " a.shape(3) : " << a.shape(8) << std::endl;
+    // on kano, this gave 48 which is a.strides(0) and this is
+    // probably due to memory layout and is implementation defined.
+#endif
     const Py_intptr_t * iptr = a.get_shape();
     std::cout << "C++      : " << "shape of a : " << bnp_array_to_shape_string(a) << std::endl;
     std::cout << "C++      : " << "strides of a : [" << a.strides(0) << ", " << a.strides(1) << ", " << a.strides(2) << "]" << std::endl;

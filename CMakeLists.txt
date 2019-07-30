@@ -50,8 +50,10 @@ string(REPLACE "." "" BOOST_PYTHON_LIBRARY_SUFFIX ${BOOST_PYTHON_LIBRARY_SUFFIX}
 # There is this name difference between Apple and Linux :(
 if(${APPLE})
     set(BOOST_PYTHON_LIBRARY_NAME python${BOOST_PYTHON_LIBRARY_SUFFIX})
+    set(BOOST_PYTHON_NUMPY_LIBRARY_NAME numpy${BOOST_PYTHON_LIBRARY_SUFFIX})
 else()
     set(BOOST_PYTHON_LIBRARY_NAME python-py${BOOST_PYTHON_LIBRARY_SUFFIX})
+    set(BOOST_PYTHON_NUMPY_LIBRARY_NAME numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX})
 endif()
 
 find_package(
@@ -60,7 +62,7 @@ find_package(
         log
         log_setup
         ${BOOST_PYTHON_LIBRARY_NAME}
-        numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX}
+        ${BOOST_PYTHON_NUMPY_LIBRARY_NAME}
     REQUIRED
 )
 
