@@ -15,15 +15,21 @@ if(ON_UBUNTU_14_PPP)
     # if("$ENV{INTELCOMP_HOME}" STREQUAL "")
         # MESSAGE(FATAL_ERROR "ON UBUNTU 14, On PPP1, finding PythonLibs requires intelcomp environment")
     # endif()
-    MESSAGE(STATUS "ON UBUNTU 14, setting Python_ADDITIONAL_VERSIONS to 3.4")
+    MESSAGE(STATUS "ON UBUNTU 14, ...")
     if("$ENV{CXX}" STREQUAL "/usr/bin/g++" OR "$ENV{CXX}" STREQUAL "/usr/bin/g++-4.8")
-       MESSAGE(STATUS "Environment variable CXX has an acceptable value for PPP1/2")
+       MESSAGE(STATUS "--> Environment variable CXX has an acceptable value for PPP1/2")
     else()
-       MESSAGE(STATUS "POSSIBLE ERROR: On PPP1/2, environment variable CXX must be /usr/bin/g++ or /usr/bin/g++-4.8")
+       MESSAGE(STATUS "--> POSSIBLE ERROR: On PPP1/2, environment variable CXX must be /usr/bin/g++ or /usr/bin/g++-4.8")
     endif()
-    SET(Python_ADDITIONAL_VERSIONS 3.4)
+    if(${CMAKE_MAJOR_VERSION} LESS 3)
+       SET(Python_ADDITIONAL_VERSIONS 3.4)
+       MESSAGE(STATUS "--> On Ubuntu 14 with CMake 2, setting Python_ADDITIONAL_VERSIONS to 3.4")
+    else()
+       MESSAGE(STATUS "--> On Ubuntu 14 with CMake 3, no need for Python_ADDITIONAL_VERSION")
+    endif()
+else()
+   MESSAGE("Not on Ubuntu 14, no special settings necessary to find PythonLibs")
 endif()
-
 
 FIND_PACKAGE(
     PythonLibs
@@ -36,9 +42,12 @@ if(PYTHONLIBS_FOUND)
    if("$ENV{ORDENV_PLAT}" STREQUAL "")
       message(STATUS "POSSIBLE ERROR: Environment variable ORDENV_PLAT is not defined, it is
       necessary to finding PythonLibs if we are on PPP1/2")
+      message(FATAL_ERROR "PythonLibs not found If, on PPP1, note
+      that ordenv must be loaded and CXX environment variable
+      must be either /usr/bin/g++ or /usr/bin/g++-4.8, Also, you
+      may have to clear CMake's cache after correcting these
+      issues.")
    endif()
-    message(FATAL_ERROR "PythonLibs not found If on PPP1, note that ordenv must be loaded and CXX environment variable
-    must be either /usr/bin/g++ or /usr/bin/g++-4.8")
 endif()
 
 ################################# Finding the right version of boost-python #################
