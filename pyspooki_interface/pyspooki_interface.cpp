@@ -12,6 +12,7 @@
 #include <meteo_operations/OperationBase.h>
 // #include "spooki_logging/spooki_logging.hpp"
 
+#include <boost/python/numpy.hpp>
 
 pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
@@ -105,9 +106,51 @@ std::shared_ptr<TestObject> copy(std::shared_ptr<TestObject> the_ptr){
     return the_ptr;
 }
 
+std::string bnp_array_to_string(boost::python::numpy::ndarray const &a){
+    return std::string(boost::python::extract<char const*>(boost::python::str(a)));
+}
+
+std::string bnp_array_to_shape_string(boost::python::numpy::ndarray const &a){
+    std::ostringstream oss;
+    oss << "(";
+    int nd = a.get_nd();
+    const Py_intptr_t * iptr = a.get_shape();
+    int dim = 0;
+    for(;dim < nd-1; dim++){
+        oss << iptr[dim] << ", ";
+    }
+    oss << iptr[nd-1] << ")" << std::endl;
+    return oss.str();
+}
+
+void massage_numpy_array(boost::python::numpy::ndarray const &a){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
+    std::cout << "C++      : " << " SHAPE IS : (" << a.shape(0) << ", " << a.shape(1) << ", " << a.shape(2) << ")" << std::endl;
+#ifndef __APPLE__
+    // On My imac, this raises an exception that is caught as
+    // an IndexError in python.  There are only three dimensions
+    // to this array.
+    std::cout << "C++      : " << " a.shape(3) : " << a.shape(8) << std::endl;
+    // on kano, this gave 48 which is a.strides(0) and this is
+    // probably due to memory layout and is implementation defined.
+#endif
+    const Py_intptr_t * iptr = a.get_shape();
+    std::cout << "C++      : " << "shape of a : " << bnp_array_to_shape_string(a) << std::endl;
+    std::cout << "C++      : " << "strides of a : [" << a.strides(0) << ", " << a.strides(1) << ", " << a.strides(2) << "]" << std::endl;
+    std::cout << "C++      : " << "sizeof(int) = " << sizeof(int) << std::endl;
+    unsigned long int *data = reinterpret_cast<unsigned long int *>(a.get_data());
+    for(int i = 0; i < 1*2*3; i++){
+        data[i] = i;
+    }
+    std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
+}
+
 using namespace boost::python;
 BOOST_PYTHON_MODULE(pyspooki_interface)
 {
+    // Py_Initialize();
+    boost::python::numpy::initialize();
     class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("ref_count", &std::shared_ptr<TestObject>::use_count);
     class_<TestObject>("TestObject", init<std::string>()).def("method", &TestObject::method);
     class_<pyspooki_interface_class>("pyspooki_interface_class", init<>())
@@ -117,6 +160,7 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
     def("tanh_impl", tanh_impl);
     def("run_absolute_value_plugin", run_absolute_value_plugin);
     def("returning_shared_ptr_test", returning_shared_ptr_test);
+    def("massage_numpy_array", massage_numpy_array);
     internal_initializations();
 }
 

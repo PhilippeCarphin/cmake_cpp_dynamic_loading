@@ -3,6 +3,9 @@ PYTHON_ADD_MODULE(pyspooki_interface pyspooki_interface.cpp)
 list(GET Boost_LIBRARY_DIRS 0 Boost_LD_PATH)
 configure_file(test_python.sh.in ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh)
 configure_file(test_loading.py.in ${CMAKE_CURRENT_BINARY_DIR}/test_loading.out.py)
+configure_file(test_numpy.in.py ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.py)
+configure_file(test_numpy.in.sh ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.sh)
+configure_file(setup_test_environment.in.sh ${CMAKE_CURRENT_BINARY_DIR}/setup_test_environment.out.sh)
 
 target_include_directories(
         pyspooki_interface
@@ -17,9 +20,8 @@ target_link_libraries(
         spooki_logging
         meteo_operations
         ${Boost_LIBRARIES}
-        # Note the non-necessity of ${PYTHON_LIBRARIES} because BOOS
+        ${PYTHON_LIBRARIES}
 )
-
 target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
 
 if(${APPLE})
@@ -48,3 +50,12 @@ add_dependencies(python_interface_test
     AbsoluteValue
 )
 
+add_custom_target(
+        check-numpy
+        COMMAND
+        env -i ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.sh
+)
+
+add_dependencies( check-numpy
+        pyspooki_interface
+)
