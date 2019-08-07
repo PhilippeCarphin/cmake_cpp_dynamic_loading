@@ -219,16 +219,24 @@ public:
     void set_owns_data(bool owns_data){_owns_data = owns_data;}
     bool owns_data(){return _owns_data;}
     WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own);
-    // WrappedNDArray(const WrappedNDArray &other)
-    //         :_nda(other._nda)
-    // {
-    //     std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
-    //     _raw_data = other._raw_data;
-    //     _owns_data = false;
-    // }
-    ~WrappedNDArray(){
+    WrappedNDArray(const WrappedNDArray &other)
+            :_nda(other._nda)
+    {
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<std::endl;
+        _raw_data = other._raw_data;
+        _owns_data = false;
+    }
+    WrappedNDArray(WrappedNDArray &&other)
+    :_raw_data(other._raw_data), _nda(other._nda)
+    {
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        other._raw_data = nullptr;
+        other._owns_data = false;
+    }
+    ~WrappedNDArray(){
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<  ", owns_data=" << _owns_data << std::endl;
         if(_owns_data){
+
             free(_raw_data);
         }
         _raw_data = nullptr;
@@ -337,8 +345,7 @@ WrappedNDArray cook_up_wrapped_ndarray_no_ptr()
     }
 
     // This now causes two constructors and destructors.
-    WrappedNDArray nda = WrappedNDArray(data_ptr, dt, shape, strides, own);
-    return nda;
+    return std::move(WrappedNDArray(data_ptr, dt, shape, strides, own));
 }
 // THIS IS THE SHIT!  This is what I wanted to know all along!
 // http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
@@ -351,10 +358,7 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
     // Py_Initialize();
 #ifdef USE_BOOST_NUMPY
     boost::python::numpy::initialize();
-    class_<WrappedNDArray>("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
-            .add_property("inner_nda", &WrappedNDArray::get_nda)
-            .def("__str__", &WrappedNDArray::__str__);
-    class_<std::shared_ptr<WrappedNDArray>>("WrappedNDARRAY_shared_ptr")
+    class_<WrappedNDArray, std::shared_ptr<WrappedNDArray> >("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
             .add_property("inner_nda", &WrappedNDArray::get_nda)
             .def("__str__", &WrappedNDArray::__str__);
     def("cook_up_wrapped_ndarray", cook_up_wrapped_ndarray);
