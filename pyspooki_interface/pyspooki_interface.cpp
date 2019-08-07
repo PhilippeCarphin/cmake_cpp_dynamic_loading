@@ -24,8 +24,7 @@ pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
 }
 
-void pyspooki_interface_class::method(){
-    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+void pyspooki_interface_class::method(){std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
 }
 
 void pyspooki_interface_function(){
@@ -212,16 +211,21 @@ private:
     bool _owns_data = true;
 
 public:
+    boost::python::numpy::ndarray get_nda()
+    {
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        return _nda;
+    }
     void set_owns_data(bool owns_data){_owns_data = owns_data;}
     bool owns_data(){return _owns_data;}
     WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own);
-    WrappedNDArray(const WrappedNDArray &other)
-            :_nda(other._nda)
-    {
-        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
-        _raw_data = other._raw_data;
-        _owns_data = false;
-    }
+    // WrappedNDArray(const WrappedNDArray &other)
+    //         :_nda(other._nda)
+    // {
+    //     std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+    //     _raw_data = other._raw_data;
+    //     _owns_data = false;
+    // }
     ~WrappedNDArray(){
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
         if(_owns_data){
@@ -244,8 +248,6 @@ public:
     : _shape(shape), boost::python::numpy::ndarray(boost::python::numpy::from_data(data_ptr, dt, shape, strides, own)) {
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
         this->_raw_data = data_ptr;
-        Py_INCREF(this->ptr());
-        Py_INCREF(this->ptr());
     }
     ~ExtNdArray(){
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
@@ -262,7 +264,7 @@ private:
     boost::python::object _shape;
 };
 
-std::shared_ptr<ExtNdArray> get_ext_nd_array()
+ExtNdArray get_ext_nd_array()
 {
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
     boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
@@ -275,9 +277,9 @@ std::shared_ptr<ExtNdArray> get_ext_nd_array()
         data_ptr[i-1] = i;
     }
 
-    std::shared_ptr<ExtNdArray> enda(new ExtNdArray(data_ptr, dt, shape, strides, own));
+    // std::shared_ptr<ExtNdArray> enda(new ExtNdArray(data_ptr, dt, shape, strides, own));
 
-    return enda;
+    return ExtNdArray(data_ptr, dt, shape, strides, own);
 
 }
 
@@ -334,8 +336,9 @@ WrappedNDArray cook_up_wrapped_ndarray_no_ptr()
         data_ptr[i-1] = i;
     }
 
-
-    return WrappedNDArray(data_ptr, dt, shape, strides, own);
+    // This now causes two constructors and destructors.
+    WrappedNDArray nda = WrappedNDArray(data_ptr, dt, shape, strides, own);
+    return nda;
 }
 // THIS IS THE SHIT!  This is what I wanted to know all along!
 // http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
@@ -348,14 +351,17 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
     // Py_Initialize();
 #ifdef USE_BOOST_NUMPY
     boost::python::numpy::initialize();
-    class_<WrappedNDArray>("WrappedNDArray", init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>())
+    class_<WrappedNDArray>("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
+            .add_property("inner_nda", &WrappedNDArray::get_nda)
+            .def("__str__", &WrappedNDArray::__str__);
+    class_<std::shared_ptr<WrappedNDArray>>("WrappedNDARRAY_shared_ptr")
+            .add_property("inner_nda", &WrappedNDArray::get_nda)
             .def("__str__", &WrappedNDArray::__str__);
     def("cook_up_wrapped_ndarray", cook_up_wrapped_ndarray);
     def("cook_up_wrapped_ndarray_no_ptr", cook_up_wrapped_ndarray_no_ptr);
-    class_<std::shared_ptr<WrappedNDArray>>("WrappedNDARRAY_shared_ptr");
     // class_<std::shared_ptr<ExtNdArray>>("ExtNdArray_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count)
     //     ;
-    class_<ExtNdArray, std::shared_ptr<ExtNdArray> >("ExtNdArray", init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>())
+    class_<ExtNdArray>("ExtNdArray", init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>())
             .add_property("shape", &ExtNdArray::shape)
             ;
     def("get_ext_nd_array", get_ext_nd_array);

@@ -39,11 +39,25 @@ def trace_malloc_test_memory():
         pyprint(str(snap))
 
 def test_wrapped_array():
+    pyprint("FIRST LINE of test_wrapped_array()")
     wrapped = interface.cook_up_wrapped_ndarray()
+    pyprint("LAST LINE of test_wrapped_array()")
+    # inner_nda = wrapped.inner_nda
+    # print(inner_nda)
     # return wrapped
 
+# pyprint("BEFORE calling test_wrapped_array()")
+# test_wrapped_array()
+# pyprint("AFTER calling test_wrapped_array()")
+
 def test_wrapped_ndarray_no_ptr():
+    pyprint("FIRST LINE of test_wrapped_array_no_ptr()")
     wrapped_no_ptr = interface.cook_up_wrapped_ndarray_no_ptr()
+    pyprint("LAST LINE of test_wrapped_array_no_ptr()")
+
+pyprint("BEFORE calling test_wrapped_array_no_ptr()")
+test_wrapped_ndarray_no_ptr()
+pyprint("AFTER calling test_wrapped_array_no_ptr()")
 
 # for i in range(500000):
 #     print(i)
@@ -53,7 +67,6 @@ def test_wrapped_ndarray_no_ptr():
 
 
 # print("PHIL")
-# test_wrapped_array()
 # test_wrapped_ndarray_no_ptr()
 # print("PAUL")
 
@@ -64,16 +77,17 @@ def test_wrapped_ndarray_no_ptr():
 # pyprint("arr.shape = {}".format(arr.shape))
 # pyprint("arr.strides = {}".format(arr.strides))
 
-my_array = interface.get_ext_nd_array_polymorphic()
-print(my_array.strides)
-# pyarray = np.zeros(my_array.shape)
-# print(pyarray[:,:,:])
+def test_inheritance():
+    my_array = interface.get_ext_nd_array_polymorphic()
+    print(my_array.strides)
+    pyarray = np.zeros(my_array.shape)
+    # print(pyarray[:,:,:])
 
-print("before doing a slice")
-print(my_array[:, :, :])
+    # print("before doing a slice")
+    # print(my_array[:, :, :])
 
 
-
+# test_inheritance()
 
 
 
