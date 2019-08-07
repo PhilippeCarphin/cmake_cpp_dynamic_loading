@@ -4,17 +4,21 @@
 
 #include <iostream>
 #include <boost/python.hpp>
+#include <python3.6m/numpy/arrayobject.h>
+
 
 #include "pyspooki_interface.h"
 #include "cmake_config.out.h"
 
 #include <dlfcn.h>
+#include <cstdlib>
 #include <meteo_operations/OperationBase.h>
 // #include "spooki_logging/spooki_logging.hpp"
 
 #ifdef USE_BOOST_NUMPY
 #include <boost/python/numpy.hpp>
 #endif
+
 
 pyspooki_interface_class::pyspooki_interface_class(){
     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
@@ -108,6 +112,24 @@ std::shared_ptr<TestObject> copy(std::shared_ptr<TestObject> the_ptr){
     return the_ptr;
 }
 
+static int *g_int_ptr = nullptr;
+void delete_g_int_ptr(){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << "delete [] g_int_ptr" << std::endl;
+    delete [] g_int_ptr;
+}
+void free_g_int_ptr(){
+    free(g_int_ptr);
+}
+
+void print_g_int_ptr(int i){
+
+    if(!g_int_ptr)
+        return;
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << "g_int_ptr[" << i << "] = " << g_int_ptr[i] << std::endl;
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << "g_int_ptr = " << g_int_ptr << std::endl;
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << "&g_int_ptr = " << &g_int_ptr << std::endl;
+}
+
 #ifdef USE_BOOST_NUMPY
 std::string bnp_array_to_string(boost::python::numpy::ndarray const &a){
     return std::string(boost::python::extract<char const*>(boost::python::str(a)));
@@ -134,7 +156,8 @@ void massage_numpy_array(boost::python::numpy::ndarray const &a){
     // On My imac, this raises an exception that is caught as
     // an IndexError in python.  There are only three dimensions
     // to this array.
-    std::cout << "C++      : " << " a.shape(3) : " << a.shape(8) << std::endl;
+    // VALGRIND does spot this on Linux, it just doesn't cause a crash
+    // std::cout << "C++      : " << " a.shape(3) : " << a.shape(8) << std::endl;
     // on kano, this gave 48 which is a.strides(0) and this is
     // probably due to memory layout and is implementation defined.
 #endif
@@ -147,20 +170,196 @@ void massage_numpy_array(boost::python::numpy::ndarray const &a){
         data[i] = i;
     }
     std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
+
+
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<float>();
+    std::cout << "C++      : " << " dtype::get_builtin<float>().get_itemsize() = " << dt.get_itemsize() << std::endl;
+}
+boost::python::numpy::ndarray cook_up_a_numpy_array()
+{
+    boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
+    boost::python::object strides = boost::python::make_tuple(192000, 9600, 320, 8);
+
+    boost::python::object own;
+    static int static_dat[10*20*30] = {11,22,33,44,55,66};
+
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<int>();
+    int * data_ptr = static_cast<int*>(malloc(10 * 20 * 30 * 40 * sizeof(int)));
+
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+        // static_dat[i-1] = i;
+    }
+
+    // std::cout << "C++      : " << __PRETTY_FUNCTION__ << "own.is_none() : " << own.is_none() << std::endl;
+    // PyArray_ENABLEFLAGS(boost::python::extract<PyArrayObject*>(nda), NPY_ARRAY_OWNDATA);
+    return boost::python::numpy::from_data(data_ptr, dt, shape, strides, own);
 }
 #else
 void massage_numpy_array(PyObject *a){
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
 }
+boost::python::numpy::ndarray cook_up_a_numpy_array(){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+}
 #endif
 
+class WrappedNDArray
+{
+private:
+    boost::python::numpy::ndarray _nda;
+    void *_raw_data = nullptr;
+    bool _owns_data = true;
 
+public:
+    void set_owns_data(bool owns_data){_owns_data = owns_data;}
+    bool owns_data(){return _owns_data;}
+    WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own);
+    WrappedNDArray(const WrappedNDArray &other)
+            :_nda(other._nda)
+    {
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        _raw_data = other._raw_data;
+        _owns_data = false;
+    }
+    ~WrappedNDArray(){
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        if(_owns_data){
+            free(_raw_data);
+        }
+        _raw_data = nullptr;
+    }
+
+    boost::python::str __str__()
+    {
+        return boost::python::str(_nda);
+    }
+
+};
+
+class ExtNdArray : public boost::python::numpy::ndarray
+{
+public:
+    ExtNdArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own)
+    : _shape(shape), boost::python::numpy::ndarray(boost::python::numpy::from_data(data_ptr, dt, shape, strides, own)) {
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        this->_raw_data = data_ptr;
+        Py_INCREF(this->ptr());
+        Py_INCREF(this->ptr());
+    }
+    ~ExtNdArray(){
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        free(_raw_data);
+    }
+
+    boost::python::object shape()
+    {
+        return _shape;
+    }
+private:
+    void *_raw_data;
+    bool _owns_data;
+    boost::python::object _shape;
+};
+
+std::shared_ptr<ExtNdArray> get_ext_nd_array()
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
+    boost::python::object strides = boost::python::make_tuple(192000, 9600, 320, 8);
+    boost::python::object own;
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<int>();
+
+    int * data_ptr = static_cast<int*>(malloc(10 * 20 * 30 * 40 * sizeof(int)));
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+    }
+
+    std::shared_ptr<ExtNdArray> enda(new ExtNdArray(data_ptr, dt, shape, strides, own));
+
+    return enda;
+
+}
+
+boost::python::numpy::ndarray get_ext_nd_array_polymorphic(){
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
+    boost::python::object strides = boost::python::make_tuple(192000, 9600, 320, 8);
+    boost::python::object own;
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<int>();
+
+    int * data_ptr = static_cast<int*>(malloc(10 * 20 * 30 * 40 * sizeof(int)));
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+    }
+
+    return static_cast<boost::python::numpy::ndarray>(ExtNdArray(data_ptr, dt, shape, strides, own));
+}
+
+WrappedNDArray::WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own)
+        :_raw_data(data_ptr), _nda(boost::python::numpy::from_data(data_ptr, dt, shape, strides, own))
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+}
+
+std::shared_ptr<WrappedNDArray> cook_up_wrapped_ndarray()
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
+    boost::python::object strides = boost::python::make_tuple(192000, 9600, 320, 8);
+    boost::python::object own;
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<int>();
+
+    int * data_ptr = static_cast<int*>(malloc(10 * 20 * 30 * 40 * sizeof(int)));
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+    }
+
+    std::shared_ptr<WrappedNDArray> wnda(new WrappedNDArray(data_ptr, dt, shape, strides, own));
+    wnda->set_owns_data(true);
+
+    return wnda;
+}
+
+WrappedNDArray cook_up_wrapped_ndarray_no_ptr()
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
+    boost::python::object strides = boost::python::make_tuple(192000, 9600, 320, 8);
+    boost::python::object own;
+    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<int>();
+
+    int * data_ptr = static_cast<int*>(malloc(10 * 20 * 30 * 40 * sizeof(int)));
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+    }
+
+
+    return WrappedNDArray(data_ptr, dt, shape, strides, own);
+}
+// THIS IS THE SHIT!  This is what I wanted to know all along!
+// http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
+// This is cool too : https://gist.github.com/malcolmgreaves/e784281c3b0c0bad9d7224b9c58f7b75
+// Also see this: https://groups.google.com/d/msg/cython-users/AG-8G_E0TRQ/D3YrbgxyG3YJ
+// And this one is really good, it explains a lot and is exactly what I need https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
 using namespace boost::python;
 BOOST_PYTHON_MODULE(pyspooki_interface)
 {
     // Py_Initialize();
 #ifdef USE_BOOST_NUMPY
     boost::python::numpy::initialize();
+    class_<WrappedNDArray>("WrappedNDArray", init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>())
+            .def("__str__", &WrappedNDArray::__str__);
+    def("cook_up_wrapped_ndarray", cook_up_wrapped_ndarray);
+    def("cook_up_wrapped_ndarray_no_ptr", cook_up_wrapped_ndarray_no_ptr);
+    class_<std::shared_ptr<WrappedNDArray>>("WrappedNDARRAY_shared_ptr");
+    // class_<std::shared_ptr<ExtNdArray>>("ExtNdArray_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count)
+    //     ;
+    class_<ExtNdArray, std::shared_ptr<ExtNdArray> >("ExtNdArray", init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>())
+            .add_property("shape", &ExtNdArray::shape)
+            ;
+    def("get_ext_nd_array", get_ext_nd_array);
+    def("get_ext_nd_array_polymorphic", get_ext_nd_array_polymorphic);
 #endif
     class_<std::shared_ptr<TestObject>>("TestObject_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count);
     class_<TestObject>("TestObject", init<std::string>()).def("method", &TestObject::method);
@@ -172,6 +371,10 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
     def("run_absolute_value_plugin", run_absolute_value_plugin);
     def("returning_shared_ptr_test", returning_shared_ptr_test);
     def("massage_numpy_array", massage_numpy_array);
+    def("cook_up_a_numpy_array", cook_up_a_numpy_array);
+    def("delete_g_int_ptr", delete_g_int_ptr);
+    def("print_g_int_ptr", print_g_int_ptr);
+    def("free_g_int_ptr", free_g_int_ptr);
     internal_initializations();
 }
 

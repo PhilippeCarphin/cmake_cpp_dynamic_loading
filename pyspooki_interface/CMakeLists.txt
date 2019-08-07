@@ -17,16 +17,16 @@ target_include_directories(
 target_link_libraries(
         pyspooki_interface
     PRIVATE
-        spooki_logging
+        # spooki_logging
         meteo_operations
         ${Boost_LIBRARIES}
-        ${PYTHON_LIBRARIES}
 )
+
 if(NOT ON_UBUNTU_14_PPP)
    target_compile_definitions(pyspooki_interface PUBLIC "USE_BOOST_NUMPY")
 endif()
 target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
-
+# target_compile_definitions(pyspooki_interface PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 if(${APPLE})
   target_link_libraries(
       pyspooki_interface

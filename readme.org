@@ -1,82 +1,214 @@
 #+TITLE: c++, dynamic loading, boost python and cmake
 
-* Introduction
+* New
 
-* Initial setup
+** CMake : Finding things and setting up
 
+*** Finding things
 
-** Toplevel
-#+BEGIN_SRC cmake
-# CMakeLists.txt
-add_executable(spooki_run.out main.cpp)
-#+END_SRC
+**** PythonLibs
 
-#+BEGIN_SRC c++
-// main.cpp
-int main(void){
-  std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
-  return 0;
-}
-#+END_SRC
-
-** Meteo Operations
+It's just this =find_package= call.  However based on the environment and the
+version of CMake, things may need to be done before this call for it to succeed.
 
 #+BEGIN_SRC cmake
-# meteo_operation/CMakeLists.txt
-add_library(meteo_operations SHARED OperationBase.cpp)
-#+END_SRC
-#+BEGIN_SRC c++
-// meteo_operations/OperationBase.h
-class OperationBase {
-public:
-
-    virtual void algo();
-    void base_method();
-};
-#+END_SRC
-#+BEGIN_SRC c++
-// meteo_operations/OperationBase.cpp
-#include "OperationBase.h"
-
-void OperationBase::algo()
-{
-    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
-    base_method();
-}
-
-void OperationBase::base_method()
-{
-    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : ... world!" << std::endl;
-}
-#+END_SRC
-
-** Plugins
-
-#+BEGIN_SRC cmake
-# plugins/AbsoluteValue/CMakeLists.txt
-add_library(AbsoluteValue MODULE AbsoluteValue.cpp)
-target_link_libraries(
-        AbsoluteValue
-    PRIVATE
-        meteo_operations
+FIND_PACKAGE(
+    PythonLibs
+        3
+    REQUIRED
 )
 #+END_SRC
 
-#+BEGIN_SRC c++
-// plugins/AbsoluteValue/AbsoluteValue.h
-#include "OperationBase.h"
-class AbsoluteValue : public OperationBase{
+***** PPP1/2
 
-    virtual void algo();
+Needs =ordenv= to be setup and the variable =CXX= must be set to =/usr/bin/g++=.
 
-};
+If CMake 2, we have to do =set(Python_ADDITIONAL_VERSIONS 3.4)= otherwise python
+3 will not be found
+
+In CMake 3, we don't need to set =Python_ADDITIONAL_VERSIONS=.
+
+***** PPP4
+
+Nothing special to do.  From a clean environment, no ordenv, no CXX,
+=find_package(PythonLibs 3 REQUIRED)= works.
+
+***** CMake code
+
+This is before the =find_package()= call and summarizes the above requirements:
+
+#+BEGIN_SRC cmake
+if(ON_UBUNTU_14_PPP)
+    # Make sure CXX is set to acceptable value for PPP1/2
+    MESSAGE(STATUS "ON UBUNTU 14, ...")
+    if("$ENV{CXX}" STREQUAL "/usr/bin/g++" OR "$ENV{CXX}" STREQUAL "/usr/bin/g++-4.8")
+       MESSAGE(STATUS "--> Environment variable CXX has an acceptable value for PPP1/2")
+    else()
+       MESSAGE(STATUS "--> POSSIBLE ERROR: On PPP1/2, environment variable CXX must be /usr/bin/g++ or /usr/bin/g++-4.8")
+    endif()
+
+    # Set Python_ADDITIONAL_VERSIONS to 3.4 if CMake 2 on PPP1/2
+    if(${CMAKE_MAJOR_VERSION} LESS 3)
+       SET(Python_ADDITIONAL_VERSIONS 3.4)
+       MESSAGE(STATUS "--> On Ubuntu 14 with CMake 2, setting Python_ADDITIONAL_VERSIONS to 3.4")
+    else()
+       MESSAGE(STATUS "--> On Ubuntu 14 with CMake 3, no need for Python_ADDITIONAL_VERSION")
+    endif()
+else()
+   # YAY!
+   MESSAGE("Not on Ubuntu 14, no special settings necessary to find PythonLibs")
+endif()
+
+FIND_PACKAGE(
+    PythonLibs
+        3
+    REQUIRED
+)
 #+END_SRC
 
-#+BEGIN_SRC c++
-// plugins/AbsoluteValue/AbsoluteValue.cpp
-void AbsoluteValue::algo(){
-    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : Hello ..." << std::endl;
-    base_method();
-}
+
+**** Boost.Python
+
+All we have to do is to add the component =python-pyXX= where =XX= is the
+two-digit-no-dot format version number of the PythonLibs that we found before
+(with some caveats).
+
+The =find_package(PythonLibs 3 REQUIRED)= will have set
+=PYTHONLIBS_VERSION_STRING= to something like =3.7.2= which we manipulate to get
+=37= and our =find_package= call looks like: =find_package(Boost COMPONENTS
+python-py37)=.
+
+For =numpy= it's =numpy3-pyXX= so we end up with
+
+#+BEGIN_SRC cmake
+find_package(
+        Boost
+    COMPONENTS
+        python-py37
+        numpy3-py37
+    REQUIRED
+)
 #+END_SRC
+
+***** Details
+
+****** Component suffix
+
+#+BEGIN_SRC cmake
+# Change PYTHONLIBS_VERSION_STRING=3.4.5 to PYTHON_FOUND_VERSION=3
+string(REGEX MATCH "3.[1-9]" BOOST_PYTHON_LIBRARY_SUFFIX ${PYTHONLIBS_VERSION_STRING})
+string(REPLACE "." "" BOOST_PYTHON_LIBRARY_SUFFIX ${BOOST_PYTHON_LIBRARY_SUFFIX})
+#+END_SRC
+
+****** Component names
+
+On OSX, =python-pyXX= becomes =pythonXX= and =numpy3-pyXX= becomes =numpyxx=
+
+#+BEGIN_SRC cmake
+# There is this name difference between Apple and Linux :(
+if(${APPLE})
+    set(BOOST_PYTHON_LIBRARY_NAME python${BOOST_PYTHON_LIBRARY_SUFFIX})
+    set(BOOST_PYTHON_NUMPY_LIBRARY_NAME numpy${BOOST_PYTHON_LIBRARY_SUFFIX})
+else()
+    set(BOOST_PYTHON_LIBRARY_NAME python-py${BOOST_PYTHON_LIBRARY_SUFFIX})
+    set(BOOST_PYTHON_NUMPY_LIBRARY_NAME numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX})
+endif()
+find_package(
+        Boost
+    COMPONENTS
+        ${BOOST_PYTHON_LIBRARY_NAME}
+        ${BOOST_PYTHON_NUMPY_LIBRARY_NAME}
+    REQUIRED
+)
+#+END_SRC
+
+*** Targets
+
+** Basic Boost Python
+
+** Shared Pointers
+
+** Numpy
+
+
+* OLD
+** Introduction
+   
+** Initial setup
+
+
+*** Toplevel
+ #+BEGIN_SRC cmake
+ # CMakeLists.txt
+ add_executable(spooki_run.out main.cpp)
+ #+END_SRC
+
+ #+BEGIN_SRC c++
+ // main.cpp
+ int main(void){
+   std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+   return 0;
+ }
+ #+END_SRC
+
+*** Meteo Operations
+
+ #+BEGIN_SRC cmake
+ # meteo_operation/CMakeLists.txt
+ add_library(meteo_operations SHARED OperationBase.cpp)
+ #+END_SRC
+ #+BEGIN_SRC c++
+ // meteo_operations/OperationBase.h
+ class OperationBase {
+ public:
+
+     virtual void algo();
+     void base_method();
+ };
+ #+END_SRC
+ #+BEGIN_SRC c++
+ // meteo_operations/OperationBase.cpp
+ #include "OperationBase.h"
+
+ void OperationBase::algo()
+ {
+     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+     base_method();
+ }
+
+ void OperationBase::base_method()
+ {
+     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : ... world!" << std::endl;
+ }
+ #+END_SRC
+
+*** Plugins
+
+ #+BEGIN_SRC cmake
+ # plugins/AbsoluteValue/CMakeLists.txt
+ add_library(AbsoluteValue MODULE AbsoluteValue.cpp)
+ target_link_libraries(
+         AbsoluteValue
+     PRIVATE
+         meteo_operations
+ )
+ #+END_SRC
+
+ #+BEGIN_SRC c++
+ // plugins/AbsoluteValue/AbsoluteValue.h
+ #include "OperationBase.h"
+ class AbsoluteValue : public OperationBase{
+
+     virtual void algo();
+
+ };
+ #+END_SRC
+
+ #+BEGIN_SRC c++
+ // plugins/AbsoluteValue/AbsoluteValue.cpp
+ void AbsoluteValue::algo(){
+     std::cerr << "C++      : " << __PRETTY_FUNCTION__ << " : Hello ..." << std::endl;
+     base_method();
+ }
+ #+END_SRC
 
