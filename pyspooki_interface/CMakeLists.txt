@@ -12,6 +12,8 @@ target_include_directories(
     PRIVATE
         ${PYTHON_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
+        ${Python3_NumPy_INCLUDE_DIRS}
+
 )
 
 target_link_libraries(
@@ -20,6 +22,7 @@ target_link_libraries(
         # spooki_logging
         meteo_operations
         ${Boost_LIBRARIES}
+        ${PYTHON3_LIBRARIES}
 )
 
 if(NOT ON_UBUNTU_14_PPP)

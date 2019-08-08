@@ -9,9 +9,5 @@ if(${CMAKE_MAJOR_VERSION} LESS 3)
     target_compile_options(spooki_logging PUBLIC "-std=c++11")
 endif()
 
-if(${CMAKE_MAJOR_VERSION} LESS 3)
-    target_compile_definitions(spooki_logging PUBLIC "BOOST_LOG_DYN_LINK")
-else()
-    set_target_properties(spooki_logging PROPERTIES COMPILE_DEFINITIONS "BOOST_LOG_DYN_LINK")
-endif()
+target_compile_definitions(spooki_logging PUBLIC "-DBOOST_LOG_DYN_LINK")
 

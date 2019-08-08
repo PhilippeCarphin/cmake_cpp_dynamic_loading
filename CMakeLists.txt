@@ -35,6 +35,14 @@ FIND_PACKAGE(
     PythonLibs
         3
 )
+if(${APPLE})
+  FIND_PACKAGE(Python3 COMPONENTS NumPy)
+  # set(PYTHON_LIBRARIES ${PYTHON3_LIBRARIES})
+  # set(PYTHON_INCLUDE_DIRS ${PYTHON3_LIBRARIES})
+endif()
+
+message(STATUS "Python3_INCLUDE_DIRS=${Python3_INCLUDE_DIRS}")
+message(STATUS "Python3_NumPy_INCLUDE_DIRS=${Python3_NumPy_INCLUDE_DIRS}")
 
 if(PYTHONLIBS_FOUND)
     message(STATUS "Found PythonLibs version ${PYTHONLIBS_VERSION_STRING} at path ${PYTHON_LIBRARIES}")
@@ -85,11 +93,19 @@ else()
    )
 endif()
 
+if(${APPLE})
+  execute_process(COMMAND python3.7 -c "import numpy; print(numpy.get_include())" OUTPUT_VARIABLE APPLE_NUMPY_DIR)
+  message(STATUS "APPLE_NUMPY_DIR=${APPLE_NUMPY_DIR}")
+  # LIST(APPEND PYTHON_INCLUDE_DIRS ${APPLE_NUMPY_DIR})
+endif()
+
 ################################## An include_directories ... so sue me #####################
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+message(STATUS "Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
 ################################## TARGET spooki_run.out ####################################
 
@@ -137,3 +153,5 @@ set(CMAKE_PLUGIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 configure_file(cmake_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.out.h)
 
 
+
+message(STATUS "Python3_NumPy_INCLUDE_DIRS=${Python3_NumPy_INCLUDE_DIRS}")
