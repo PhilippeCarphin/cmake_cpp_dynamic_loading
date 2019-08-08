@@ -5,6 +5,7 @@
 #include <iostream>
 #include <boost/python.hpp>
 #include <python3.6m/numpy/arrayobject.h>
+#include <python3.6m/numpy/ndarraytypes.h>
 
 
 #include "pyspooki_interface.h"
@@ -222,16 +223,17 @@ public:
     WrappedNDArray(const WrappedNDArray &other)
             :_nda(other._nda)
     {
-        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<std::endl;
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << " COPYING object at " << &other <<std::endl;
         _raw_data = other._raw_data;
-        _owns_data = false;
+        _owns_data = true;
     }
     WrappedNDArray(WrappedNDArray &&other)
     :_raw_data(other._raw_data), _nda(other._nda)
     {
-        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << " MOVING object at " << &other <<std::endl;
         other._raw_data = nullptr;
         other._owns_data = false;
+        this->_owns_data = false;
     }
     ~WrappedNDArray(){
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<  ", owns_data=" << _owns_data << std::endl;
@@ -242,12 +244,19 @@ public:
         _raw_data = nullptr;
     }
 
+
+    void dealloc(){
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
+    }
+
     boost::python::str __str__()
     {
         return boost::python::str(_nda);
     }
 
 };
+
+
 
 class ExtNdArray : public boost::python::numpy::ndarray
 {
@@ -347,20 +356,58 @@ WrappedNDArray cook_up_wrapped_ndarray_no_ptr()
     // This now causes two constructors and destructors.
     return std::move(WrappedNDArray(data_ptr, dt, shape, strides, own));
 }
+
 // THIS IS THE SHIT!  This is what I wanted to know all along!
 // http://blog.enthought.com/python/numpy-arrays-with-pre-allocated-memory/
 // This is cool too : https://gist.github.com/malcolmgreaves/e784281c3b0c0bad9d7224b9c58f7b75
 // Also see this: https://groups.google.com/d/msg/cython-users/AG-8G_E0TRQ/D3YrbgxyG3YJ
 // And this one is really good, it explains a lot and is exactly what I need https://jakevdp.github.io/blog/2014/05/05/introduction-to-the-python-buffer-protocol/
+
+
+boost::python::object get_a_god_damned_numpy_array_that_owns_its_data_even_if_I_created_it_in_CPP()
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+    int nd = 4;
+    npy_intp npy_dims[] = {20,30,40,50};
+    int * data_ptr = (int*)(malloc(200 * 10 * 20 * 30 * 40 * sizeof(int)));
+    for(int i = 1; i <= 10*20*30; ++i){
+        data_ptr[i-1] = i;
+    }
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << "   Attempting to call PyArray_SimpleNewFromData(" << std::endl
+            << "          " << "nd=" << nd << std::endl
+            << "          " << "npy_dims=" << npy_dims << std::endl
+            << "          " << "NPY_INT32=" << NPY_INT32 << std::endl
+            << "          " << "data_ptr=" << data_ptr << std::endl
+            << "          " << "&data_ptr=" << &data_ptr << std::endl
+    << std::endl;
+
+    PyObject *array = PyArray_SimpleNewFromData(nd, npy_dims, NPY_INT32, (void*)(&data_ptr));
+    // PyArray_ENABLEFLAGS((PyArrayObject *)array, NPY_OWNDATA);
+
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << " [[ END ]] " << std::endl;
+    return boost::python::object(boost::python::handle<>(array));
+}
+
+// #define import_array() {if (_import_array() < 0) {PyErr_Print(); PyErr_SetString(PyExc_ImportError, "numpy.core.multiarray failed to import"); return NUMPY_IMPORT_ARRAY_RETVAL; } }
+int import_array_wrapper(){
+    // import_array(); (a macro for doing this:
+    if (_import_array() < 0) {
+        PyErr_Print();
+        PyErr_SetString(PyExc_ImportError, "numpy.core.multiarray failed to import");
+        return NUMPY_IMPORT_ARRAY_RETVAL;
+    }
+}
 using namespace boost::python;
 BOOST_PYTHON_MODULE(pyspooki_interface)
 {
     // Py_Initialize();
 #ifdef USE_BOOST_NUMPY
+    import_array_wrapper();
     boost::python::numpy::initialize();
-    class_<WrappedNDArray, std::shared_ptr<WrappedNDArray> >("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
+    class_<WrappedNDArray, std::shared_ptr<WrappedNDArray>>("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
             .add_property("inner_nda", &WrappedNDArray::get_nda)
-            .def("__str__", &WrappedNDArray::__str__);
+            .def("__str__", &WrappedNDArray::__str__)
+            .def("dealloc", &WrappedNDArray::dealloc);
     def("cook_up_wrapped_ndarray", cook_up_wrapped_ndarray);
     def("cook_up_wrapped_ndarray_no_ptr", cook_up_wrapped_ndarray_no_ptr);
     // class_<std::shared_ptr<ExtNdArray>>("ExtNdArray_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count)
@@ -385,6 +432,7 @@ BOOST_PYTHON_MODULE(pyspooki_interface)
     def("delete_g_int_ptr", delete_g_int_ptr);
     def("print_g_int_ptr", print_g_int_ptr);
     def("free_g_int_ptr", free_g_int_ptr);
+    def("get_straight_up_array", get_a_god_damned_numpy_array_that_owns_its_data_even_if_I_created_it_in_CPP);
     internal_initializations();
 }
 

@@ -55,9 +55,9 @@ def test_wrapped_ndarray_no_ptr():
     wrapped_no_ptr = interface.cook_up_wrapped_ndarray_no_ptr()
     pyprint("LAST LINE of test_wrapped_array_no_ptr()")
 
-pyprint("BEFORE calling test_wrapped_array_no_ptr()")
-test_wrapped_ndarray_no_ptr()
-pyprint("AFTER calling test_wrapped_array_no_ptr()")
+# pyprint("BEFORE calling test_wrapped_array_no_ptr()")
+# test_wrapped_ndarray_no_ptr()
+# pyprint("AFTER calling test_wrapped_array_no_ptr()")
 
 # for i in range(500000):
 #     print(i)
@@ -89,7 +89,11 @@ def test_inheritance():
 
 # test_inheritance()
 
+def test_straight_up():
+    interface.get_straight_up_array()
 
+for i in range(500000):
+    test_straight_up()
 
 pyprint("SCRIPT END")
 
