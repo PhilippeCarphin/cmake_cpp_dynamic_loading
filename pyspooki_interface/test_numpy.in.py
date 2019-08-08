@@ -92,8 +92,11 @@ def test_inheritance():
 def test_straight_up():
     interface.get_straight_up_array()
 
-for i in range(500000):
+i = 0
+while(True):
+    i += 1
     test_straight_up()
+    pyprint("This is the {}-th array I've created!".format(i))
 
 pyprint("SCRIPT END")
 
