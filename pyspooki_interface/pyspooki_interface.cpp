@@ -381,8 +381,8 @@ boost::python::object get_a_god_damned_numpy_array_that_owns_its_data_even_if_I_
             << "          " << "&data_ptr=" << &data_ptr << std::endl
     << std::endl;
 
-    PyObject *array = PyArray_SimpleNewFromData(nd, npy_dims, NPY_INT32, (void*)(&data_ptr));
-    // PyArray_ENABLEFLAGS((PyArrayObject *)array, NPY_OWNDATA);
+    PyObject *array = PyArray_SimpleNewFromData(nd, npy_dims, NPY_INT32, (void*)(data_ptr));
+    PyArray_ENABLEFLAGS((PyArrayObject *)array, NPY_OWNDATA);
 
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << " [[ END ]] " << std::endl;
     return boost::python::object(boost::python::handle<>(array));
