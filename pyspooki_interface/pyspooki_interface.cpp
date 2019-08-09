@@ -398,7 +398,7 @@ int import_array_wrapper(){
     }
 }
 using namespace boost::python;
-BOOST_PYTHON_MODULE(pyspooki_interface)
+BOOST_PYTHON_MODULE(THIS_PYTHON_MODULE_NAME)
 {
     // Py_Initialize();
 #ifdef USE_BOOST_NUMPY

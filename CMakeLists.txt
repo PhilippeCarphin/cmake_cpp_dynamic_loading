@@ -78,6 +78,12 @@ find_package(
     COMPONENTS
         log
         log_setup
+        thread
+        filesystem
+        system
+        atomic
+        chrono
+        date_time
         ${BOOST_PYTHON_LIBRARY_NAME}
     REQUIRED
 )

@@ -27,6 +27,7 @@ target_link_libraries(
 
 if(NOT ON_UBUNTU_14_PPP)
    target_compile_definitions(pyspooki_interface PUBLIC "USE_BOOST_NUMPY")
+   target_compile_definitions(pyspooki_interface PRIVATE "THIS_PYTHON_MODULE_NAME=pyspooki_interface")
 endif()
 target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
 # target_compile_definitions(pyspooki_interface PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)

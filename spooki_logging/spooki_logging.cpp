@@ -35,6 +35,10 @@
 #include <boost/core/null_deleter.hpp>
 #endif
 
+#ifndef BOOST_LOG_DYN_LINK
+#warning "BOOST LOG DYN LINK IS UNDEFINED"
+#endif
+
 #include <boost/log/sinks.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/attributes.hpp>
@@ -217,8 +221,8 @@ void spooki_logging::set_log_entry_format(bool with_timestamps){
     }
 
     // Uncomment the timer line in the expression to get this in the log records
-    attrs::timer Timer;
-    boost::log::core::get()->add_global_attribute("Uptime", Timer);
+    // attrs::timer Timer;
+    // boost::log::core::get()->add_global_attribute("Uptime", Timer);
 
 #ifdef DEBUG
     /*
