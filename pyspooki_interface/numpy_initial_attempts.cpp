@@ -25,50 +25,6 @@ void print_g_int_ptr(int i){
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << "&g_int_ptr = " << &g_int_ptr << std::endl;
 }
 
-std::string bnp_array_to_string(boost::python::numpy::ndarray const &a){
-    return std::string(boost::python::extract<char const*>(boost::python::str(a)));
-}
-
-std::string bnp_array_to_shape_string(boost::python::numpy::ndarray const &a){
-    std::ostringstream oss;
-    oss << "(";
-    int nd = a.get_nd();
-    const Py_intptr_t * iptr = a.get_shape();
-    int dim = 0;
-    for(;dim < nd-1; dim++){
-        oss << iptr[dim] << ", ";
-    }
-    oss << iptr[nd-1] << ")" << std::endl;
-    return oss.str();
-}
-
-void massage_numpy_array(boost::python::numpy::ndarray const &a){
-    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
-    std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
-    std::cout << "C++      : " << " SHAPE IS : (" << a.shape(0) << ", " << a.shape(1) << ", " << a.shape(2) << ")" << std::endl;
-#ifndef __APPLE__
-    // On My imac, this raises an exception that is caught as
-    // an IndexError in python.  There are only three dimensions
-    // to this array.
-    // VALGRIND does spot this on Linux, it just doesn't cause a crash
-    // std::cout << "C++      : " << " a.shape(3) : " << a.shape(8) << std::endl;
-    // on kano, this gave 48 which is a.strides(0) and this is
-    // probably due to memory layout and is implementation defined.
-#endif
-    const Py_intptr_t * iptr = a.get_shape();
-    std::cout << "C++      : " << "shape of a : " << bnp_array_to_shape_string(a) << std::endl;
-    std::cout << "C++      : " << "strides of a : [" << a.strides(0) << ", " << a.strides(1) << ", " << a.strides(2) << "]" << std::endl;
-    std::cout << "C++      : " << "sizeof(int) = " << sizeof(int) << std::endl;
-    unsigned long int *data = reinterpret_cast<unsigned long int *>(a.get_data());
-    for(int i = 0; i < 1*2*3; i++){
-        data[i] = i;
-    }
-    std::cout << "C++      : " << " printing str(a) ..." << std::endl << bnp_array_to_string(a) << std::endl;
-
-
-    boost::python::numpy::dtype dt = boost::python::numpy::dtype::get_builtin<float>();
-    std::cout << "C++      : " << " dtype::get_builtin<float>().get_itemsize() = " << dt.get_itemsize() << std::endl;
-}
 boost::python::numpy::ndarray cook_up_a_numpy_array()
 {
     boost::python::object shape = boost::python::make_tuple(10, 20, 30, 40);
@@ -266,7 +222,6 @@ BOOST_PYTHON_MODULE(THIS_PYTHON_MODULE_NAME)
             ;
     def("get_ext_nd_array", get_ext_nd_array);
     def("get_ext_nd_array_polymorphic", get_ext_nd_array_polymorphic);
-        def("massage_numpy_array", massage_numpy_array);
         def("cook_up_a_numpy_array", cook_up_a_numpy_array);
         def("delete_g_int_ptr", delete_g_int_ptr);
         def("print_g_int_ptr", print_g_int_ptr);

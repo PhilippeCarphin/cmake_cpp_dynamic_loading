@@ -3,20 +3,10 @@
 import numpy_initial_attempts as interface
 import numpy as np
 import tracemalloc
-def pyprint(message):
-    print("PYTHON   : " + message)
-def send_numpy_array():
-    my_array = np.zeros((1, 2, 3), dtype='uint64')
-    print(my_array)
-    my_array[0,1] = 5;
-    interface.massage_numpy_array(my_array)
-    print("PYTHON   : my_array.shape = {}".format(my_array.shape))
-    return my_array
 
-def test_send_numpy_array():
-    pyprint("Calling send_numpy_array()")
-    arr = send_numpy_array()
-    pyprint("Back from calling send_numpy_array()\n")
+def pyprint(msg):
+    print("PYTHON   : " + str(msg))
+
 
 def test_memory():
     # pyprint("Calling cook_up_a_numpy_array()")
@@ -62,7 +52,7 @@ test_wrapped_ndarray_no_ptr()
 pyprint("AFTER calling test_wrapped_array_no_ptr()")
 
 
-for i in range(50):
+for i in range(5):
     print(i)
     # test_memory()
     # test_numpy_straight_up()

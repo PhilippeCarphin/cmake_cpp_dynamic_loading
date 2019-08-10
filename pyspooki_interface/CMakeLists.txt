@@ -1,105 +1,41 @@
-PYTHON_ADD_MODULE(pyspooki_interface pyspooki_interface.cpp)
 
-list(GET Boost_LIBRARY_DIRS 0 Boost_LD_PATH)
+FUNCTION(ADD_BOOST_PYTHON_MODULE name sources)
+    PYTHON_ADD_MODULE(${ARGV})
+    target_compile_definitions(${name} PRIVATE THIS_PYTHON_MODULE_NAME=${name})
+    target_link_libraries(${name} PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} ${PYTHON_LIBRARIES})
+    target_include_directories(${name} PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-target_include_directories(
-        pyspooki_interface
-    PRIVATE
-        ${PYTHON_INCLUDE_DIRS}
-)
+    configure_file(test_${name}.in.py test_${name}.out.py)
+    add_custom_target(check-${name} COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_${name}.out.py)
+    add_dependencies(check-${name} ${name})
+ENDFUNCTION()
 
-if(${APPLE})
-    target_include_directories(
-            pyspooki_interface
-        PRIVATE
-            ${Python3_NumPy_INCLUDE_DIRS}
-    )
-endif()
+add_custom_target(check-py)
 
-target_link_libraries(
-        pyspooki_interface
-    PRIVATE
-        meteo_operations
-        Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
-        Boost::${BOOST_PYTHON_COMPONENT_NAME}
-        ${PYTHON_LIBRARIES}
-)
+ADD_BOOST_PYTHON_MODULE(absval absval.cpp)
+ADD_DEPENDENCIES(absval AbsoluteValue)
+ADD_DEPENDENCIES(check-py check-absval)
 
-if(NOT ON_UBUNTU_14_PPP)
-    target_compile_definitions(pyspooki_interface PUBLIC "USE_BOOST_NUMPY")
-endif()
-target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
+ADD_BOOST_PYTHON_MODULE(interface_classes interface_classes.cpp)
+ADD_DEPENDENCIES(check-py check-interface_classes)
+
+ADD_BOOST_PYTHON_MODULE(receive_numpy_array receive_numpy_array.cpp)
+target_link_libraries(receive_numpy_array PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
+add_dependencies(check-py check-receive_numpy_array)
 
 
+ADD_BOOST_PYTHON_MODULE(numpy_initial_attempts numpy_initial_attempts.cpp)
+target_link_libraries(numpy_initial_attempts PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
+ADD_DEPENDENCIES(check-py check-numpy_initial_attempts)
 
-
-PYTHON_ADD_MODULE(absval absval.cpp)
-target_include_directories(absval PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(absval PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} ${PYTHON_LIBRARIES})
-add_dependencies(absval AbsoluteValue)
-
-add_custom_target(check-absval COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_absval.out.py)
-configure_file(test_absval.in.py test_absval.out.py)
-add_dependencies(check-absval absval)
-
-
-PYTHON_ADD_MODULE(interface_classes interface_classes.cpp)
-target_compile_definitions(interface_classes PRIVATE THIS_PYTHON_MODULE_NAME=interface_classes)
-target_link_libraries(interface_classes PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} ${PYTHON_LIBRARIES})
-target_include_directories(interface_classes PRIVATE ${PYTHON_INCLUDE_DIRS})
-
-add_custom_target(check-interface_classes COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_interface_classes.out.py)
-configure_file(test_interface_classes.in.py test_interface_classes.out.py)
-add_dependencies(check-interface_classes interface_classes)
-
-
-PYTHON_ADD_MODULE(numpy_initial_attempts numpy_initial_attempts.cpp)
-target_compile_definitions(numpy_initial_attempts PRIVATE THIS_PYTHON_MODULE_NAME=numpy_initial_attempts)
-target_link_libraries(numpy_initial_attempts PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME} ${PYTHON_LIBRARIES})
-target_include_directories(numpy_initial_attempts PRIVATE ${PYTHON_INCLUDE_DIRS})
-
-add_custom_target(check-numpy_initial_attempts COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_numpy_initial_attempts.out.py)
-configure_file(test_numpy_initial_attempts.in.py test_numpy_initial_attempts.out.py)
-add_dependencies(check-numpy_initial_attempts numpy_initial_attempts)
-
-
-
-
-PYTHON_ADD_MODULE(numpy_legit_attempts numpy_legit_attempts.cpp)
-target_compile_definitions(numpy_legit_attempts PRIVATE THIS_PYTHON_MODULE_NAME=numpy_legit_attempts)
-target_link_libraries(numpy_legit_attempts PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME} ${PYTHON_LIBRARIES})
-target_include_directories(numpy_legit_attempts PRIVATE ${PYTHON_INCLUDE_DIRS})
+ADD_BOOST_PYTHON_MODULE(numpy_legit_attempts numpy_legit_attempts.cpp)
 target_include_directories(numpy_legit_attempts PRIVATE ${Python3_NumPy_INCLUDE_DIRS})
+ADD_DEPENDENCIES(check-py check-numpy_legit_attempts)
 
-add_custom_target(check-numpy_legit_attempts COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_numpy_legit_attempts.out.py)
-configure_file(test_numpy_legit_attempts.in.py test_numpy_legit_attempts.out.py)
-add_dependencies(check-numpy_legit_attempts numpy_legit_attempts)
+ADD_BOOST_PYTHON_MODULE(numpy_capsule_way numpy_capsule_way.cpp)
+target_link_libraries(numpy_capsule_way PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
+ADD_DEPENDENCIES(check-py check-numpy_capsule_way)
 
-
-configure_file(test_python.sh.in ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh)
-configure_file(test_loading.py.in ${CMAKE_CURRENT_BINARY_DIR}/test_loading.out.py)
-configure_file(test_numpy.in.py ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.py)
-configure_file(test_numpy.in.sh ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.sh)
 configure_file(setup_test_environment.in.sh ${CMAKE_CURRENT_BINARY_DIR}/setup_test_environment.out.sh)
-add_custom_target(
-        python_interface_test
-    COMMAND
-        # The key that was holding me back was this:  The boost libraries were
-        # not in LD_LIBRARY_PATH
-        env -i ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh
-)
 
-add_dependencies(python_interface_test
-    pyspooki_interface
-    AbsoluteValue
-)
 
-add_custom_target(
-        check-numpy
-        COMMAND
-        env -i ${CMAKE_CURRENT_BINARY_DIR}/test_numpy.out.sh
-)
-
-add_dependencies( check-numpy
-        pyspooki_interface
-)

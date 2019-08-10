@@ -58,7 +58,7 @@ b = 4
 pyprint("no more TestObject")
 
 print("getting test object manual")
-c = interface.TestObject("manual")
+c = interface.InterfaceClass("manual")
 
 
 

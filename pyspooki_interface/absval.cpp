@@ -65,26 +65,9 @@ void run_absolute_value_plugin(){
     absolute_value_instance_ptr->algo();
 }
 
-const double e = 2.7182818284590452353602874713527;
-double sinh_impl(double x) {
-    return (1 - pow(e, (-2 * x))) / (2 * pow(e, -x));
-}
-
-double cosh_impl(double x) {
-    return (1 + pow(e, (-2 * x))) / (2 * pow(e, -x));
-}
-
-PyObject* tanh_impl(float x) {
-    std::cerr << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
-    double tanh_x = sinh_impl(x) / cosh_impl(x);
-    return PyFloat_FromDouble(tanh_x);
-}
-
 using namespace boost::python;
 BOOST_PYTHON_MODULE(absval)
 {
-    def("pyspooki_interface_function", pyspooki_interface_function);
-    def("tanh_impl", tanh_impl);
     def("run_absolute_value_plugin", run_absolute_value_plugin);
     internal_initializations();
 }

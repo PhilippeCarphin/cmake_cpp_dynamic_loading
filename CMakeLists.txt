@@ -161,10 +161,6 @@ add_subdirectory(spooki_logging)
 ################################## TARGET CHECK ##############################################
 
 add_custom_target(check)
-add_dependencies(check
-    python_interface_test
-    pyspooki_interface
-)
 
 ################################## CONFIGURE_FILE ############################################
 
