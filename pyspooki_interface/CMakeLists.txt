@@ -14,6 +14,14 @@ target_include_directories(
         ${Boost_INCLUDE_DIRS}
 )
 
+if(${APPLE})
+    target_include_directories(
+            pyspooki_interface
+        PRIVATE
+            ${Python3_NumPy_INCLUDE_DIRS}
+    )
+endif()
+
 target_link_libraries(
         pyspooki_interface
     PRIVATE

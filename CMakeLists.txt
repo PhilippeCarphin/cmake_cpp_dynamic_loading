@@ -34,7 +34,14 @@ endif()
 FIND_PACKAGE(
     PythonLibs
         3
+        COMPONENTS
 )
+
+if(${APPLE})
+    FIND_PACKAGE(Python3 COMPONENTS NumPy)
+    message(STATUS "Python3_INCLUDE_DIRS=${Python3_INCLUDE_DIRS}")
+    message(STATUS "Python3_NumPy_INCLUDE_DIRS=${Python3_NumPy_INCLUDE_DIRS}")
+endif()
 
 if(PYTHONLIBS_FOUND)
     message(STATUS "Found PythonLibs version ${PYTHONLIBS_VERSION_STRING} at path ${PYTHON_LIBRARIES}")
@@ -70,6 +77,7 @@ find_package(
     COMPONENTS
         log
         log_setup
+        thread
         ${BOOST_PYTHON_LIBRARY_NAME}
     REQUIRED
 )

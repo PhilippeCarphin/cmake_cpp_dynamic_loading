@@ -4,9 +4,9 @@
 
 #include <iostream>
 #include <boost/python.hpp>
-#include <python3.6m/numpy/arrayobject.h>
-#include <python3.6m/numpy/ndarraytypes.h>
 
+#include <numpy/arrayobject.h>
+#include <numpy/ndarraytypes.h>
 
 #include "pyspooki_interface.h"
 #include "cmake_config.out.h"

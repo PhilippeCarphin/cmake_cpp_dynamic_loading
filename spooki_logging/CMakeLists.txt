@@ -1,7 +1,7 @@
 add_library(spooki_logging SHARED spooki_logging.cpp)
 
 target_include_directories(spooki_logging PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(spooki_logging PRIVATE ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(spooki_logging PRIVATE ${Boost_LIBRARIES} ${Boost_LOG_LIBRARY} ${Boost_LOGSETUP_LIBRARY} ${Boost_THREAD_LIBRARY} ${PYTHON_LIBRARIES})
 target_link_libraries(spooki_logging INTERFACE ${Boost_LIBRARIES})
 #target_compile_features(spooki_logging PUBLIC cxx_std_11)
 
