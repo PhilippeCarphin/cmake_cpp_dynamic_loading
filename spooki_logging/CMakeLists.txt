@@ -1,9 +1,15 @@
 add_library(spooki_logging SHARED spooki_logging.cpp)
 
 target_include_directories(spooki_logging PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(spooki_logging PRIVATE ${Boost_LIBRARIES} ${Boost_LOG_LIBRARY} ${Boost_LOGSETUP_LIBRARY} ${Boost_THREAD_LIBRARY} ${PYTHON_LIBRARIES})
-target_link_libraries(spooki_logging INTERFACE ${Boost_LIBRARIES})
-#target_compile_features(spooki_logging PUBLIC cxx_std_11)
+
+
+# log, logsetup and thread don't get added to Boost_LIBRARIES on Apple.
+# I should just always explicitly link with the boost libraries that I want
+# It's better this way
+target_link_libraries(spooki_logging
+    PRIVATE
+        Boost::log
+)
 
 if(${CMAKE_MAJOR_VERSION} LESS 3)
     target_compile_options(spooki_logging PUBLIC "-std=c++11")

@@ -25,23 +25,16 @@ endif()
 target_link_libraries(
         pyspooki_interface
     PRIVATE
-        # spooki_logging
         meteo_operations
-        ${Boost_LIBRARIES}
+        Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
+        Boost::${BOOST_PYTHON_COMPONENT_NAME}
+        ${PYTHON_LIBRARIES}
 )
 
 if(NOT ON_UBUNTU_14_PPP)
    target_compile_definitions(pyspooki_interface PUBLIC "USE_BOOST_NUMPY")
 endif()
 target_compile_options(pyspooki_interface PRIVATE -Wpedantic)
-# target_compile_definitions(pyspooki_interface PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
-if(${APPLE})
-  target_link_libraries(
-      pyspooki_interface
-    PRIVATE
-      ${PYTHON_LIBRARIES}
-  )
-endif()
 
 add_dependencies(
     pyspooki_interface
@@ -50,7 +43,7 @@ add_dependencies(
 
 add_custom_target(
         python_interface_test
-        COMMAND
+    COMMAND
         # The key that was holding me back was this:  The boost libraries were
         # not in LD_LIBRARY_PATH
         env -i ${CMAKE_CURRENT_BINARY_DIR}/test_python.out.sh
