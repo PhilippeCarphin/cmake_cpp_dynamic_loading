@@ -46,12 +46,17 @@ boost::python::numpy::ndarray cook_up_a_numpy_array()
     return boost::python::numpy::from_data(data_ptr, dt, shape, strides, own);
 }
 
+/*
+ * This is decently promising as long as the class is exposed through a shared pointer.  We can do better but this is a useful example.
+ *
+ * I experimented trying to make a move constructor.
+ */
 class WrappedNDArray
 {
 private:
     boost::python::numpy::ndarray _nda;
     void *_raw_data = nullptr;
-    bool _owns_data = true;
+    mutable bool _owns_data = true;
 
 public:
     boost::python::numpy::ndarray get_nda()
@@ -67,7 +72,10 @@ public:
     {
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << " COPYING object at " << &other <<std::endl;
         _raw_data = other._raw_data;
-        _owns_data = true;
+        // Having to make _owns_data mutable so that copy-constructing will steal ownership of the data
+        // is obviously hackish .. I know!!!!
+        other._owns_data = false;
+        this->_owns_data = true;
     }
     WrappedNDArray(WrappedNDArray &&other)
             :_raw_data(other._raw_data), _nda(other._nda)
@@ -75,20 +83,17 @@ public:
         std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << " MOVING object at " << &other <<std::endl;
         other._raw_data = nullptr;
         other._owns_data = false;
-        this->_owns_data = false;
+        this->_owns_data = true;
     }
     ~WrappedNDArray(){
-        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<  ", owns_data=" << _owns_data << std::endl;
+        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this <<  ", owns_data=" << _owns_data;
         if(_owns_data){
-
             free(_raw_data);
+            std::cout << " free(" << _raw_data << ")" << std::endl;
+        } else {
+            std::cout << std::endl;
         }
         _raw_data = nullptr;
-    }
-
-
-    void dealloc(){
-        std::cout << "C++      : " << __PRETTY_FUNCTION__ << " C++ object at " << this << std::endl;
     }
 
     boost::python::str __str__()
@@ -97,6 +102,12 @@ public:
     }
 
 };
+
+WrappedNDArray::WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own)
+        :_raw_data(data_ptr), _nda(boost::python::numpy::from_data(data_ptr, dt, shape, strides, own))
+{
+    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
+}
 
 
 
@@ -157,11 +168,6 @@ boost::python::numpy::ndarray get_ext_nd_array_polymorphic(){
     return static_cast<boost::python::numpy::ndarray>(ExtNdArray(data_ptr, dt, shape, strides, own));
 }
 
-WrappedNDArray::WrappedNDArray(void *data_ptr, boost::python::numpy::dtype dt, boost::python::object shape, boost::python::object strides, boost::python::object own)
-        :_raw_data(data_ptr), _nda(boost::python::numpy::from_data(data_ptr, dt, shape, strides, own))
-{
-    std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
-}
 
 std::shared_ptr<WrappedNDArray> cook_up_wrapped_ndarray()
 {
@@ -182,6 +188,23 @@ std::shared_ptr<WrappedNDArray> cook_up_wrapped_ndarray()
     return wnda;
 }
 
+/*
+ * This shows why it's better to expose our own classes through shared pointers
+ * This is functions goes nuts with constructors.  Because it ends up being wrapped
+ * by boost,
+ * it goes like this :
+ *
+ * boost-wrapper function
+ *     boost pre-function stuff
+ *     my_retval = my_function()
+ *          // create a local array
+ *          // std::move it to the return value (so far so good)
+ *     boost post stuff
+ *          // Here the copy constructor gets called, probably because boost does ...
+ *     return to_python<...>(my_retval)
+ *          // This probably causes a copy construction to happen
+ *
+ */
 WrappedNDArray cook_up_wrapped_ndarray_no_ptr()
 {
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << std::endl;
@@ -211,8 +234,7 @@ BOOST_PYTHON_MODULE(THIS_PYTHON_MODULE_NAME)
     boost::python::numpy::initialize();
     class_<WrappedNDArray, std::shared_ptr<WrappedNDArray>>("WrappedNDArray",init<void *, boost::python::numpy::dtype, boost::python::object, boost::python::object, boost::python::object>() )
             .add_property("inner_nda", &WrappedNDArray::get_nda)
-            .def("__str__", &WrappedNDArray::__str__)
-            .def("dealloc", &WrappedNDArray::dealloc);
+            .def("__str__", &WrappedNDArray::__str__);
     def("cook_up_wrapped_ndarray", cook_up_wrapped_ndarray);
     def("cook_up_wrapped_ndarray_no_ptr", cook_up_wrapped_ndarray_no_ptr);
     // class_<std::shared_ptr<ExtNdArray>>("ExtNdArray_shared_ptr").def("sh_ptr_use_count", &std::shared_ptr<TestObject>::use_count)

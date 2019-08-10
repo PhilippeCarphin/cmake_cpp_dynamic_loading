@@ -38,6 +38,7 @@ def test_wrapped_array():
     # print(inner_nda)
     # return wrapped
 
+print()
 pyprint("BEFORE calling test_wrapped_array()")
 test_wrapped_array()
 pyprint("AFTER calling test_wrapped_array()")
@@ -47,22 +48,13 @@ def test_wrapped_ndarray_no_ptr():
     wrapped_no_ptr = interface.cook_up_wrapped_ndarray_no_ptr()
     pyprint("LAST LINE of test_wrapped_array_no_ptr()")
 
+print()
 pyprint("BEFORE calling test_wrapped_array_no_ptr()")
 test_wrapped_ndarray_no_ptr()
 pyprint("AFTER calling test_wrapped_array_no_ptr()")
 
 
-for i in range(5):
-    print(i)
-    # test_memory()
-    # test_numpy_straight_up()
-    test_wrapped_array()
-
-
-print("PHIL")
-test_wrapped_ndarray_no_ptr()
-print("PAUL")
-
+print()
 my_array = interface.get_ext_nd_array()
 pyprint("my_array.shape = {}".format(my_array.shape))
 # pyprint("my_array.strides = {}".format(my_array.strides))
@@ -72,13 +64,13 @@ pyprint("arr.strides = {}".format(arr.strides))
 
 def test_inheritance():
     my_array = interface.get_ext_nd_array_polymorphic()
-    print(my_array.strides)
+    pyprint(my_array.strides)
     pyarray = np.zeros(my_array.shape)
     # print(pyarray[:,:,:])
 
     # print("before doing a slice")
     # print(my_array[:, :, :])
 
-
+print()
 test_inheritance()
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import numpy_capsule_way as interface
 
+
 i = 0
 while i < 10:
+    j = 4
     print("PYTHON   : ---------------- While iteration ------------------- ({})".format(i))
     print("PYTHON   : BEFORE calling test_capsule_way()")
     arr = interface.get_array_that_owns_through_capsule()
@@ -11,5 +13,6 @@ while i < 10:
     if i % 1000 == 0:
         print("PYTHON   : Nb arrays created and destroyed : {}".format(i))
 
-    print("PYTHON   : ----------- End while iteration")
+    print("PYTHON   : ----------- End while iteration\n")
+
 print("PYTHON   : SCRIPT END")
