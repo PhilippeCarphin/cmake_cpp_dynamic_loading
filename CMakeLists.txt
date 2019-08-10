@@ -80,6 +80,42 @@ find_package(
     REQUIRED
         ${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
 )
+
+if(${Boost_PYTHON37_FOUND})
+    message(STATUS "PYTHON37 FOUND!!!!!")
+    set(Boost_PYTHON_LIBRARIES ${Boost_PYTHON37_LIBRARIES})
+    set(Boost_NUMPY_LIBRARIES ${Boost_NUMPY37_LIBRARIES})
+elseif(${Boost_PYTHON_PY37_FOUND})
+    message(STATUS "PYTHON_PY37 FOUND !!!!!!!!!!!!!!!!")
+    set(Boost_PYTHON_LIBRARIES ${Boost_PYTHON_PY37_LIBRARIES})
+    set(Boost_NUMPY_LIBRARIES ${Boost_NUMPY3_PY37_LIBRARIES})
+endif()
+message(STATUS "------- PYTHON ")
+message(STATUS "Boost_PYTHON37_LIBRARIES = ${Boost_PYTHON37_LIBRARIES}")
+message(STATUS "Boost_PYTHON37_LIBRARY = ${Boost_PYTHON37_LIBRARY}")
+
+message(STATUS "------- ")
+message(STATUS "Boost_NUMPY37_LIBRARIES = ${Boost_NUMPY37_LIBRARIES}")
+message(STATUS "Boost_NUMPY37_LIBRARY = ${Boost_NUMPY37_LIBRARY}")
+
+message(STATUS "Boost_LOG_LIBRARIES = ${Boost_LOG_LIBRARIES}")
+message(STATUS "Boost_LOG_LIBRARY = ${Boost_LOG_LIBRARY}")
+
+message(STATUS "Boost_LOG_SETUP_LIBRARIES = ${Boost_LOG_SETUP_LIBRARIES}")
+message(STATUS "Boost_LOG_SETUP_LIBRARY = ${Boost_LOG_SETUP_LIBRARY}")
+
+message(STATUS "Boost_THREAD_LIBRARIES = ${Boost_THREAD_LIBRARIES}")
+message(STATUS "Boost_THREAD_LIBRARY = ${Boost_THREAD_LIBRARY}")
+
+message(STATUS "Boost_x_LIBRARIES = ${Boost_x_LIBRARIES}")
+message(STATUS "Boost_x_LIBRARIES = ${Boost_x_LIBRARIES}")
+# message(STATUS "Boost_PYTHON37_INCLUDE_DIRS = ${Boost_PYTHON37_INCLUDE_DIRS}")
+# message(STATUS "Boost_NUMPY37_INCLUDE_DIRS = ${Boost_NUMPY37_INCLUDE_DIRS}")
+# message(STATUS "Boost_PYTHON37_INCLUDE_DIR = ${Boost_PYTHON37_INCLUDE_DIR}")
+# message(STATUS "Boost_NUMPY37_INCLUDE_DIR = ${Boost_NUMPY37_INCLUDE_DIR}")
+message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
+
+# message(FATAL_ERROR "Stopping early")
 if(ON_UBUNTU_14_PPP)
    MESSAGE(STATUS "PPP1 and PPP2 do not have numpy,
    you won't be able to build anything that uses it, and anything that uses it
