@@ -80,17 +80,12 @@ find_package(
         thread
         ${BOOST_PYTHON_LIBRARY_NAME}
     REQUIRED
+        ${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
 )
 if(ON_UBUNTU_14_PPP)
    MESSAGE(STATUS "PPP1 and PPP2 do not have numpy,
    you won't be able to build anything that uses it, and anything that uses it
    will likely cause a segfault when running")
-else()
-   find_package(
-           Boost
-       COMPONENTS
-           ${BOOST_PYTHON_NUMPY_LIBRARY_NAME}
-   )
 endif()
 
 ################################## An include_directories ... so sue me #####################
