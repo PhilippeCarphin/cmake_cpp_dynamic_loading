@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY(receive_numpy_array)
 ADD_SUBDIRECTORY(numpy_initial_attempts)
 ADD_SUBDIRECTORY(numpy_legit_attempts)
 ADD_SUBDIRECTORY(numpy_capsule_way)
+ADD_SUBDIRECTORY(numpy_default_object_way)
 
 configure_file(setup_test_environment.in.sh ${CMAKE_CURRENT_BINARY_DIR}/setup_test_environment.out.sh)
 

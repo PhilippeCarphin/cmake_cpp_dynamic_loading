@@ -1,0 +1,3 @@
+ADD_BOOST_PYTHON_MODULE(numpy_default_object_way numpy_default_object_way.cpp)
+target_link_libraries(numpy_default_object_way PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
+ADD_DEPENDENCIES(check-py check-numpy_default_object_way)

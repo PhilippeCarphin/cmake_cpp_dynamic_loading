@@ -23,9 +23,9 @@ void InterfaceClass::method()
 }
 
 
-std::shared_ptr<InterfaceClass> returning_shared_ptr_test(std::string name){
+std::shared_ptr<InterfaceClass> get_object_shared_ptr(std::string name){
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << "[" << name << "]" << std::endl;
-    return std::shared_ptr<InterfaceClass>(new InterfaceClass(name));
+    return std::make_shared<InterfaceClass>(name);
 }
 
 std::shared_ptr<InterfaceClass> copy(std::shared_ptr<InterfaceClass> the_ptr){
@@ -104,10 +104,13 @@ BOOST_PYTHON_MODULE(THIS_PYTHON_MODULE_NAME)
         class_<std::shared_ptr<InterfaceClass>>("InterfaceClass_shared_ptr")
                 .def("sh_ptr_use_count", &std::shared_ptr<InterfaceClass>::use_count);
 
-        class_<InterfaceClass>("InterfaceClass", init<std::string>()).def("method", &InterfaceClass::method);
+        class_<InterfaceClass>("InterfaceClass", init<std::string>())
+                .def("method", &InterfaceClass::method);
+
         def("copy", copy);
+
         def("pyspooki_interface_function", interface_function);
-        def("returning_shared_ptr_test", returning_shared_ptr_test);
+        def("get_object_shared_ptr", get_object_shared_ptr);
         def("tanh_impl", tanh_impl);
         def("tanh_impl_better", tanh_impl_better);
         internal_initializations();

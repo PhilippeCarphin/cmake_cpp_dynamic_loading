@@ -10,7 +10,7 @@ def py_obj_ref_count(x):
 print("==== create_a_shared_ptr =====")
 def create_a_shared_ptr():
     print("PYTHON   : Calling returing_shared_ptr_test ...")
-    a = interface.returning_shared_ptr_test("create_a_shared_ptr")
+    a = interface.get_object_shared_ptr("create_a_shared_ptr")
     print("PYTHON   : back from returning_shared_ptr_test")
 
 pyprint("create_a_shared_ptr()")
@@ -19,7 +19,7 @@ pyprint("back from create_a_shared_ptr")
 
 print("========= return_a_shared_ptr() =======")
 def return_a_shared_ptr():
-    return interface.returning_shared_ptr_test("return_a_shared_ptr")
+    return interface.get_object_shared_ptr("get_object_shared_ptr")
 
 
 pyprint("b = return_a_shared_ptr()")
