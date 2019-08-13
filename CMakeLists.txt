@@ -38,6 +38,12 @@ FIND_PACKAGE(
 )
 
 if(${APPLE})
+    # Because Numpy header files are in a weird place on Apple
+    # /Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/numpy/core/include
+    # which contains a directory called numpy which has the headers.
+    # On Ubuntu 18, we have it in the regular python include directory:
+    # /usr/include/python3.6m contains a directory (a link) called numpy, it points to the numpy directory
+    # in the .../numpy/core/include
     FIND_PACKAGE(Python3 COMPONENTS NumPy)
     message(STATUS "Python3_INCLUDE_DIRS=${Python3_INCLUDE_DIRS}")
     message(STATUS "Python3_NumPy_INCLUDE_DIRS=${Python3_NumPy_INCLUDE_DIRS}")
@@ -77,7 +83,6 @@ find_package(
     COMPONENTS
         log
         ${BOOST_PYTHON_COMPONENT_NAME}
-    REQUIRED
         ${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
 )
 if(${APPLE})
