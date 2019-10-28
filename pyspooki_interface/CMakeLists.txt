@@ -14,6 +14,7 @@ target_include_directories(
         ${Boost_INCLUDE_DIRS}
 )
 
+message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
 target_link_libraries(
         pyspooki_interface
     PRIVATE

@@ -65,24 +65,30 @@ else()
     set(BOOST_PYTHON_NUMPY_LIBRARY_NAME numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX})
 endif()
 
-find_package(
-        Boost
-    COMPONENTS
-        log
-        log_setup
-        ${BOOST_PYTHON_LIBRARY_NAME}
-    REQUIRED
-)
 if(ON_UBUNTU_14_PPP)
+  find_package(
+          Boost
+      COMPONENTS
+          log
+          log_setup
+          ${BOOST_PYTHON_LIBRARY_NAME}
+          thread
+      REQUIRED
+  )
    MESSAGE(STATUS "PPP1 and PPP2 do not have numpy,
    you won't be able to build anything that uses it, and anything that uses it
    will likely cause a segfault when running")
 else()
-   find_package(
-           Boost
-       COMPONENTS
+  find_package(
+          Boost
+      COMPONENTS
+          log
+          log_setup
+          ${BOOST_PYTHON_LIBRARY_NAME}
+          thread
            ${BOOST_PYTHON_NUMPY_LIBRARY_NAME}
-   )
+      REQUIRED
+  )
 endif()
 
 ################################## An include_directories ... so sue me #####################
