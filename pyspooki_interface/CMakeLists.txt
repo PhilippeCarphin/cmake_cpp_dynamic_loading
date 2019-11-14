@@ -4,6 +4,8 @@ FUNCTION(ADD_BOOST_PYTHON_MODULE name sources)
     target_compile_definitions(${name} PRIVATE THIS_PYTHON_MODULE_NAME=${name})
     target_link_libraries(${name} PRIVATE Boost::${BOOST_PYTHON_COMPONENT_NAME} ${PYTHON_LIBRARIES})
     target_include_directories(${name} PRIVATE ${PYTHON_INCLUDE_DIRS})
+    install(TARGETS ${name} CONFIGURATIONS Debug LIBRARY DESTINATION ${PYTHON_USER_INSTALL_SITE}/dev)
+    install(TARGETS ${name} CONFIGURATIONS Release LIBRARY DESTINATION ${PYTHON_USER_INSTALL_SITE})
 
     configure_file(test_${name}.in.py test_${name}.out.py)
     add_custom_target(check-${name} COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/test_${name}.out.py)

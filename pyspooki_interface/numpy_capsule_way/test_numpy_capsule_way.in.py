@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import numpy_capsule_way as interface
 
-
 i = 0
 while i < 10:
     j = 4

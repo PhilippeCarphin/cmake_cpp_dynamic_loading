@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 project (Tutorial CXX)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -57,6 +57,9 @@ if(PYTHONLIBS_FOUND)
    endif()
 endif()
 
+execute_process(COMMAND python3 -m site --user-site OUTPUT_VARIABLE PYTHON_USER_INSTALL_SITE)
+STRING(REPLACE "\n" "" PYTHON_USER_INSTALL_SITE ${PYTHON_USER_INSTALL_SITE})
+
 ################################# Finding the right version of boost-python #################
 
 # Change PYTHONLIBS_VERSION_STRING=3.4.5 to PYTHON_FOUND_VERSION=3
@@ -72,10 +75,13 @@ else()
     set(BOOST_PYTHON_NUMPY_COMPONENT_NAME numpy3-py${BOOST_PYTHON_LIBRARY_SUFFIX})
 endif()
 
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/usr/local/Cellar/boost-python3/1.71.0/lib")
 find_package(
         Boost
     COMPONENTS
         log
+        log_setup
+        thread
         ${BOOST_PYTHON_COMPONENT_NAME}
     REQUIRED
         ${BOOST_PYTHON_NUMPY_COMPONENT_NAME}
@@ -107,12 +113,6 @@ message(STATUS "Boost_LOG_SETUP_LIBRARY = ${Boost_LOG_SETUP_LIBRARY}")
 message(STATUS "Boost_THREAD_LIBRARIES = ${Boost_THREAD_LIBRARIES}")
 message(STATUS "Boost_THREAD_LIBRARY = ${Boost_THREAD_LIBRARY}")
 
-message(STATUS "Boost_x_LIBRARIES = ${Boost_x_LIBRARIES}")
-message(STATUS "Boost_x_LIBRARIES = ${Boost_x_LIBRARIES}")
-# message(STATUS "Boost_PYTHON37_INCLUDE_DIRS = ${Boost_PYTHON37_INCLUDE_DIRS}")
-# message(STATUS "Boost_NUMPY37_INCLUDE_DIRS = ${Boost_NUMPY37_INCLUDE_DIRS}")
-# message(STATUS "Boost_PYTHON37_INCLUDE_DIR = ${Boost_PYTHON37_INCLUDE_DIR}")
-# message(STATUS "Boost_NUMPY37_INCLUDE_DIR = ${Boost_NUMPY37_INCLUDE_DIR}")
 message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 
 # message(FATAL_ERROR "Stopping early")
@@ -121,7 +121,7 @@ if(ON_UBUNTU_14_PPP)
    you won't be able to build anything that uses it, and anything that uses it
    will likely cause a segfault when running")
 endif()
-
+add_compile_options(-g)
 ################################## An include_directories ... so sue me #####################
 
 include_directories(

@@ -17,8 +17,8 @@ boost::python::object get_numpy_array_owning_data()
     npy_intp npy_dims[] = {20,30,40,50};
 
     int * data_ptr = (int*)(malloc(20 * 30 * 40 * 50 * sizeof(int)));
-    for(int i = 1; i <= 20*30*40*50; ++i){
-        data_ptr[i-1] = i;
+    for(int i = 0; i < 20*30*40*50; ++i){
+        data_ptr[i] = i;
     }
 
     std::cout << "C++      : " << __PRETTY_FUNCTION__ << "   Calling PyArray_SimpleNewFromData()" << std::endl;
