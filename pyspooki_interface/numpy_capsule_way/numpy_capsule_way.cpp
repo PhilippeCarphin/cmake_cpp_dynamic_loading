@@ -44,6 +44,7 @@ boost::python::numpy::ndarray get_array_that_owns_through_capsule()
 using namespace boost::python;
 BOOST_PYTHON_MODULE(THIS_PYTHON_MODULE_NAME)
 {
+    Py_Initialize();
     boost::python::numpy::initialize();
     def("get_array_that_owns_through_capsule", get_array_that_owns_through_capsule);
 }
