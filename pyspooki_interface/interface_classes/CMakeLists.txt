@@ -1,2 +1,0 @@
-ADD_BOOST_PYTHON_MODULE(interface_classes interface_classes.cpp)
-ADD_DEPENDENCIES(check-py check-interface_classes)

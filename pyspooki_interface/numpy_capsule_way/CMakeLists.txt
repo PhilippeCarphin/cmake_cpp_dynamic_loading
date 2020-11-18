@@ -1,3 +1,0 @@
-ADD_BOOST_PYTHON_MODULE(numpy_capsule_way numpy_capsule_way.cpp)
-target_link_libraries(numpy_capsule_way PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
-ADD_DEPENDENCIES(check-py check-numpy_capsule_way)

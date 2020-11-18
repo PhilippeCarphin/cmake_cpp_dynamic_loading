@@ -1,0 +1,1 @@
+ADD_BOOST_PYTHON_MODULE(pymeteo pymeteo.c)

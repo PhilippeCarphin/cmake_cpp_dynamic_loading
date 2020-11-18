@@ -68,13 +68,8 @@ add_dependencies(spooki_run.out AbsoluteValue)
 
 ################################## SUBDIRECTORIES ############################################
 
-add_subdirectory(meteo_operations)
-add_subdirectory(plugins)
-add_subdirectory(pyspooki_interface)
-add_subdirectory(spooki_logging)
-
-################################## TARGET CHECK ##############################################
-
+add_subdirectory(meteo)
+add_subdirectory(pymeteo)
 add_custom_target(check)
 
 ################################## CONFIGURE_FILE ############################################

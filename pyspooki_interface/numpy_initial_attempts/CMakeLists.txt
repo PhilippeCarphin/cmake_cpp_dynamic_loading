@@ -1,4 +1,0 @@
-ADD_BOOST_PYTHON_MODULE(numpy_initial_attempts numpy_initial_attempts.cpp)
-target_link_libraries(numpy_initial_attempts PRIVATE Boost::${BOOST_PYTHON_NUMPY_COMPONENT_NAME})
-ADD_DEPENDENCIES(check-py check-numpy_initial_attempts)
-

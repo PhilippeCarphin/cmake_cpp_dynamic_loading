@@ -1,5 +1,5 @@
 
-add_library(meteo_operations SHARED OperationBase.cpp)
+add_library(meteo SHARED meteo.c)
 
 # This will cause ' -I ${CMAKE_CURRENT_SOURCE_DIR} to go on the command line
 # for things that link with this target.
